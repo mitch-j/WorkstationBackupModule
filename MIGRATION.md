@@ -1,11 +1,13 @@
 # WorkstationBackup Module - Migration Summary
 
 ## Overview
+
 Successfully migrated core functionality from legacy `Sync-PowerShellEnvironment.ps1` script into the modular PowerShell module structure. The module now supports both legacy script fallback and new module-based backup/restore operations.
 
 ## Completed Migrations
 
 ### Private Functions (Helpers)
+
 1. **Resolve-TemplateValue.ps1** - Expands PowerShell variables and environment variables in configuration strings
 2. **Ensure-Directory.ps1** - Creates directories if they don't exist with WhatIf support
 3. **Copy-IfDifferent.ps1** - Copies files only if they've changed (SHA256 hash comparison)
@@ -15,6 +17,7 @@ Successfully migrated core functionality from legacy `Sync-PowerShellEnvironment
 7. **Get-InstalledGalleryModuleRecords.ps1** - Queries installed PowerShell Gallery modules
 
 ### Backup Functions
+
 1. **Backup-PowerShellProfiles.ps1** - Backs up PowerShell profile files
 2. **Backup-SettingsFiles.ps1** - Backs up application settings files
 3. **Backup-OhMyPoshThemes.ps1** - Backs up Oh My Posh theme files
@@ -22,6 +25,7 @@ Successfully migrated core functionality from legacy `Sync-PowerShellEnvironment
 5. **Export-PowerShellModules.ps1** - Exports installed PowerShell Gallery modules to JSON manifest
 
 ### Restore Functions
+
 1. **Restore-PowerShellProfiles.ps1** - Restores PowerShell profile files
 2. **Restore-SettingsFiles.ps1** - Restores application settings files
 3. **Restore-OhMyPoshThemes.ps1** - Restores Oh My Posh theme files
@@ -29,13 +33,16 @@ Successfully migrated core functionality from legacy `Sync-PowerShellEnvironment
 5. **Import-PowerShellModules.ps1** - Installs PowerShell Gallery modules from manifest
 
 ### Updated Public Functions
+
 1. **Export-PowerShellEnvironment.ps1** - Now supports both new module-based export and legacy script fallback via `-UseLegacyScript` switch
 2. **Import-PowerShellEnvironment.ps1** - Now supports both new module-based import and legacy script fallback via `-UseLegacyScript` switch
 
 ## Configuration
 
 ### New Config File: `powershell-sync.config.json`
+
 Sample configuration created in repository root with support for:
+
 - Repository paths
 - Module paths (personal and external)
 - Profile mappings
@@ -49,6 +56,7 @@ Sample configuration created in repository root with support for:
 ## Features
 
 ### Supported Exports
+
 - ✅ PowerShell profiles
 - ✅ Application settings files
 - ✅ Oh My Posh themes
@@ -58,6 +66,7 @@ Sample configuration created in repository root with support for:
 - ✅ Chocolatey packages (existing functionality)
 
 ### Supported Restores
+
 - ✅ PowerShell profiles
 - ✅ Application settings files
 - ✅ Oh My Posh themes
@@ -66,6 +75,7 @@ Sample configuration created in repository root with support for:
 - ✅ Internal modules (existing functionality)
 
 ### Built-in Support
+
 - ✅ WhatIf mode for all operations
 - ✅ ShouldProcess support for dangerous operations
 - ✅ Structured logging with timestamps and levels
@@ -76,6 +86,7 @@ Sample configuration created in repository root with support for:
 ## Testing
 
 ### Basic Validation Completed
+
 - ✅ Module loads without syntax errors
 - ✅ All public functions are exported correctly
 - ✅ Export-PowerShellEnvironment with -WhatIf works as expected
@@ -86,11 +97,13 @@ Sample configuration created in repository root with support for:
 - ✅ PowerShell modules manifest export/import tested
 
 ### Test File Created
+
 - `Tests/WorkstationBackup.Tests.ps1` - Pester-based test suite (requires Pester module)
 
 ## Known Limitations / TODO
 
 ### Future Enhancements
+
 - [ ] Nerd Fonts backup/restore (complex, requires Fonts and NerdFonts modules)
 - [ ] Complete Pester test coverage
 - [ ] Integration tests with actual Git sync
@@ -99,6 +112,7 @@ Sample configuration created in repository root with support for:
 - [ ] Cross-platform support (currently Windows-focused)
 
 ### Legacy Script Deprecation
+
 - The legacy `Scripts/Legacy/Sync-PowerShellEnvironment.ps1` should remain during transition
 - Add deprecation warnings once module covers 100% of functionality
 - Complete removal recommended once all users migrate
@@ -106,6 +120,7 @@ Sample configuration created in repository root with support for:
 ## Usage Examples
 
 ### Export Current Environment
+
 ```powershell
 # Using new module functions
 Export-PowerShellEnvironment -WhatIf
@@ -115,6 +130,7 @@ Export-PowerShellEnvironment -UseLegacyScript
 ```
 
 ### Import Environment
+
 ```powershell
 # Using new module functions
 Import-PowerShellEnvironment -WhatIf
@@ -124,6 +140,7 @@ Import-PowerShellEnvironment -UseLegacyScript
 ```
 
 ### Full Backup/Restore Workflow
+
 ```powershell
 # Export everything
 Invoke-WorkstationBackup -WhatIf
@@ -134,7 +151,7 @@ Import-PowerShellEnvironment
 
 ## File Structure
 
-```
+```text
 WorkstationBackup/
 ├── Private/
 │   ├── Backup-OhMyPoshThemes.ps1
@@ -195,12 +212,14 @@ powershell-sync.config.json (NEW)
 ## Migration Notes
 
 The migration maintains backward compatibility through:
+
 - `-UseLegacyScript` switch on public functions
 - Identical configuration file format
 - Same directory structure expectations
 - Preserved WhatIf and ShouldProcess behavior
 
 The new module-based approach provides:
+
 - Better testability with isolated functions
 - Type-safe configuration handling
 - Improved error messages and logging
