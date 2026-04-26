@@ -10,8 +10,10 @@ function Read-PowerShellSyncConfig {
 
     $raw = Get-Content -LiteralPath $Path -Raw -Encoding UTF8
     $cfg = $raw | ConvertFrom-Json -Depth 50
+    
 
-    foreach ($required in 'RepoRoot','PersonalModulesPath','ExternalModulesPath','InventoryDirectory','ProfilesDirectory','SettingsDirectory','ThemesDirectory','FontsDirectory','LogDirectory','PersonalModules') {
+
+    foreach ($required in 'RepoRoot', 'PersonalModulesPath', 'ExternalModulesPath', 'InventoryDirectory', 'ProfilesDirectory', 'SettingsDirectory', 'ThemesDirectory', 'FontsDirectory', 'LogDirectory', 'PersonalModules') {
         if (-not $cfg.PSObject.Properties.Name.Contains($required)) {
             throw "Missing required config property: $required"
         }
@@ -32,6 +34,10 @@ function Read-PowerShellSyncConfig {
     $cfg.FontsDirectory = Resolve-TemplateValue -Value $cfg.FontsDirectory -RelativeRoot $cfg.RepoRoot
     $cfg.LogDirectory = Resolve-TemplateValue -Value $cfg.LogDirectory -RelativeRoot $cfg.RepoRoot
 
+    if (-not $cfg.PSObject.Properties.Name.Contains('ConfigPath')) {
+        $cfg | Add-Member -NotePropertyName ConfigPath -NotePropertyValue $Path
+    }
+
     if (-not $cfg.PSObject.Properties.Name.Contains('DefaultRepository') -or [string]::IsNullOrWhiteSpace($cfg.DefaultRepository)) {
         $cfg | Add-Member -NotePropertyName DefaultRepository -NotePropertyValue 'PSGallery'
     }
@@ -49,27 +55,27 @@ function Read-PowerShellSyncConfig {
 
     if (-not $cfg.PSObject.Properties.Name.Contains('OhMyPosh')) {
         $cfg | Add-Member -NotePropertyName OhMyPosh -NotePropertyValue ([pscustomobject]@{
-            BackupEnabled     = $true
-            BackupAllThemes   = $true
-            ThemeSourcePath   = '$env:POSH_THEMES_PATH'
-            ThemeBackupPath   = 'Themes\\oh-my-posh'
-            RestoreTargetPath = 'Themes\\oh-my-posh'
-        })
+                BackupEnabled     = $true
+                BackupAllThemes   = $true
+                ThemeSourcePath   = '$env:POSH_THEMES_PATH'
+                ThemeBackupPath   = 'Themes\\oh-my-posh'
+                RestoreTargetPath = 'Themes\\oh-my-posh'
+            })
     }
 
     if (-not $cfg.PSObject.Properties.Name.Contains('Fonts')) {
         $cfg | Add-Member -NotePropertyName Fonts -NotePropertyValue ([pscustomobject]@{
-            BackupEnabled           = $true
-            InstallOnApply          = $true
-            Provider                = 'NerdFonts'
-            DiscoveryEnabled        = $true
-            Scope                   = 'CurrentUser'
-            RequiredFonts           = @()
-            InventoryPath           = 'Inventory\\fonts.json'
-            AutoDetectFromInstalled = $true
-            Files                   = @()
-            RestoreDirectory        = '$env:LOCALAPPDATA\\Microsoft\\Windows\\Fonts'
-        })
+                BackupEnabled           = $true
+                InstallOnApply          = $true
+                Provider                = 'NerdFonts'
+                DiscoveryEnabled        = $true
+                Scope                   = 'CurrentUser'
+                RequiredFonts           = @()
+                InventoryPath           = 'Inventory\\fonts.json'
+                AutoDetectFromInstalled = $true
+                Files                   = @()
+                RestoreDirectory        = '$env:LOCALAPPDATA\\Microsoft\\Windows\\Fonts'
+            })
     }
 
     if (-not $cfg.Fonts.PSObject.Properties.Name.Contains('Provider')) {
@@ -77,6 +83,9 @@ function Read-PowerShellSyncConfig {
     }
     if (-not $cfg.Fonts.PSObject.Properties.Name.Contains('DiscoveryEnabled')) {
         $cfg.Fonts | Add-Member -NotePropertyName DiscoveryEnabled -NotePropertyValue $true
+    }
+    if (-not $cfg.Fonts.PSObject.Properties.Name.Contains('BackupEnabled')) {
+        $cfg.Fonts | Add-Member -NotePropertyName BackupEnabled -NotePropertyValue $true
     }
     if (-not $cfg.Fonts.PSObject.Properties.Name.Contains('Scope')) {
         $cfg.Fonts | Add-Member -NotePropertyName Scope -NotePropertyValue 'CurrentUser'
@@ -96,14 +105,17 @@ function Read-PowerShellSyncConfig {
     if (-not $cfg.Fonts.PSObject.Properties.Name.Contains('RestoreDirectory')) {
         $cfg.Fonts | Add-Member -NotePropertyName RestoreDirectory -NotePropertyValue '$env:LOCALAPPDATA\\Microsoft\\Windows\\Fonts'
     }
+    if (-not $cfg.Fonts.PSObject.Properties.Name.Contains('InstallOnApply')) {
+        $cfg.Fonts | Add-Member -NotePropertyName InstallOnApply -NotePropertyValue $true
+    }
 
     if (-not $cfg.PSObject.Properties.Name.Contains('WindowsTerminal')) {
         $cfg | Add-Member -NotePropertyName WindowsTerminal -NotePropertyValue ([pscustomobject]@{
-            BackupEnabled      = $true
-            SettingsSourcePath = '$env:LOCALAPPDATA\\Packages\\Microsoft.WindowsTerminal_8wekyb3d8bbwe\\LocalState\\settings.json'
-            SettingsBackupPath = 'Settings\\windows-terminal\\settings.json'
-            RestoreTargetPath  = '$env:LOCALAPPDATA\\Packages\\Microsoft.WindowsTerminal_8wekyb3d8bbwe\\LocalState\\settings.json'
-        })
+                BackupEnabled      = $true
+                SettingsSourcePath = '$env:LOCALAPPDATA\\Packages\\Microsoft.WindowsTerminal_8wekyb3d8bbwe\\LocalState\\settings.json'
+                SettingsBackupPath = 'Settings\\windows-terminal\\settings.json'
+                RestoreTargetPath  = '$env:LOCALAPPDATA\\Packages\\Microsoft.WindowsTerminal_8wekyb3d8bbwe\\LocalState\\settings.json'
+            })
     }
 
     foreach ($item in @($cfg.Profiles)) {

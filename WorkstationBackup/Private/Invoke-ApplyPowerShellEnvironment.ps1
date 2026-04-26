@@ -15,21 +15,15 @@ function Invoke-ApplyPowerShellEnvironment {
     Sync-PSModulePath -Config $Config
     Initialize-ConfigDirectories -Config $Config
 
-    # Bootstrap dependencies first
+    # Bootstrap runtime dependencies first.
     Import-PowerShellModules -Config $Config
+    Initialize-FontRestorePrerequisites -Config $Config -SkipFontInstallFailures:$SkipFontInstallFailures | Out-Null
 
-    # Optional font prerequisite/bootstrap stage
-    if (Get-Command -Name Initialize-FontRestorePrerequisites -ErrorAction SilentlyContinue) {
-        Initialize-FontRestorePrerequisites -Config $Config -SkipFailures:$SkipFontInstallFailures
-    }
-
+    # Apply repo-managed state.
     Restore-PowerShellProfiles -Config $Config
     Restore-SettingsFiles -Config $Config
     Restore-OhMyPoshThemes -Config $Config
-
-    if (Get-Command -Name Restore-NerdFonts -ErrorAction SilentlyContinue) {
-        Restore-NerdFonts -Config $Config -SkipFailures:$SkipFontInstallFailures
-    }
-
+    Restore-NerdFonts -Config $Config -SkipFontInstallFailures:$SkipFontInstallFailures
     Restore-WindowsTerminal -Config $Config
+
 }

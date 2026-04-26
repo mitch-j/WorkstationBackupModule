@@ -136,9 +136,7 @@ function Import-PowerShellEnvironment {
     $config = Read-PowerShellSyncConfig -Path $ConfigPath
     Write-BackupLog -Message "Loaded config from $ConfigPath"
 
-    if (Get-Command -Name Set-BackupUserEnvironmentVariable -ErrorAction SilentlyContinue) {
-        Set-BackupUserEnvironmentVariable -Name 'PS_CONFIG_ROOT' -Value $config.RepoRoot
-    }
+    Set-BackupUserEnvironmentVariable -Name 'PS_CONFIG_ROOT' -Value $config.RepoRoot
 
     Invoke-ApplyPowerShellEnvironment `
         -Config $config `

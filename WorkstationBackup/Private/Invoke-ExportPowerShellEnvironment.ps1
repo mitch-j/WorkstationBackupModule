@@ -18,15 +18,8 @@ function Invoke-ExportPowerShellEnvironment {
     Backup-PowerShellProfiles -Config $Config
     Backup-SettingsFiles -Config $Config
     Backup-OhMyPoshThemes -Config $Config
-
-    if (Get-Command -Name Export-NerdFonts -ErrorAction SilentlyContinue) {
-        Export-NerdFonts -Config $Config -UpdateConfigFromDiscovery:$UpdateFontConfigFromDiscovery
-    }
-
+    Export-NerdFonts -Config $Config -UpdateFontConfigFromDiscovery:$UpdateFontConfigFromDiscovery
     Backup-WindowsTerminal -Config $Config
     Export-PowerShellModules -Config $Config
-
-    if (Get-Command -Name Export-MachineState -ErrorAction SilentlyContinue) {
-        Export-MachineState -Config $Config
-    }
+    Export-MachineState -Config $Config
 }

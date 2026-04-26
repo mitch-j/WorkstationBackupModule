@@ -106,6 +106,7 @@ function Export-PowerShellEnvironment {
 
         [Parameter()]
         [switch]$UseLegacyScript
+
     )
 
     Set-StrictMode -Version Latest
@@ -136,6 +137,8 @@ function Export-PowerShellEnvironment {
             '-SkipGit'
         )
 
+        Set-BackupUserEnvironmentVariable -Name 'PS_CONFIG_ROOT' -Value $config.RepoRoot -WhatIf:$WhatIfPreference
+
         if ($UpdateFontConfigFromDiscovery) {
             $legacyArguments += '-UpdateFontConfigFromDiscovery'
         }
@@ -160,9 +163,7 @@ function Export-PowerShellEnvironment {
     $config = Read-PowerShellSyncConfig -Path $ConfigPath
     Write-BackupLog -Message "Loaded config from $ConfigPath"
 
-    if (Get-Command -Name Set-BackupUserEnvironmentVariable -ErrorAction SilentlyContinue) {
-        Set-BackupUserEnvironmentVariable -Name 'PS_CONFIG_ROOT' -Value $config.RepoRoot
-    }
+    Set-BackupUserEnvironmentVariable -Name 'PS_CONFIG_ROOT' -Value $config.RepoRoot
 
     Invoke-ExportPowerShellEnvironment `
         -Config $config `
