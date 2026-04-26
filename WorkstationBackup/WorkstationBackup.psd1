@@ -13,6 +13,7 @@
         'Import-PowerShellEnvironment',
         'Export-ChocoMachineBackup',
         'Register-WorkstationBackupTask'
+        'Export-InternalModuleBackup'
     )
     CmdletsToExport   = @()
     VariablesToExport = @()
