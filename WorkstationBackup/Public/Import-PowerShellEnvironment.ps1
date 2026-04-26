@@ -1,3 +1,73 @@
+<#
+.SYNOPSIS
+    Restores the PowerShell environment from a backup repository.
+
+.DESCRIPTION
+    Restores a workstation's PowerShell configuration from a backup repository,
+    including profiles, settings files, Oh My Posh themes, Windows Terminal settings,
+    and PowerShell Gallery modules.
+
+    By default, uses the new modular restore functions. Can fall back to the legacy
+    script for features not yet migrated via the -UseLegacyScript switch.
+
+.PARAMETER RepoRoot
+    The root directory of the backup repository. If not provided, automatically
+    determined from the module's location. Supports $env: variable expansion.
+
+.PARAMETER ConfigPath
+    Path to the powershell-sync.config.json configuration file. If not provided,
+    defaults to $RepoRoot/powershell-sync.config.json.
+
+.PARAMETER SkipFontInstallFailures
+    If specified, continues restoration even if Nerd Font installation fails.
+    Without this switch, font installation errors halt the process.
+
+.PARAMETER UseLegacyScript
+    If specified, uses the legacy Sync-PowerShellEnvironment.ps1 script instead
+    of the new modular functions. Use this for features not yet migrated.
+
+.EXAMPLE
+    Import-PowerShellEnvironment
+
+    Restores the environment from default locations using new modular functions.
+
+.EXAMPLE
+    Import-PowerShellEnvironment -WhatIf
+
+    Shows what would be restored without making changes.
+
+.EXAMPLE
+    Import-PowerShellEnvironment -RepoRoot 'C:\Backup\MyEnvironment'
+
+    Restores from a custom repository location.
+
+.EXAMPLE
+    Import-PowerShellEnvironment -SkipFontInstallFailures
+
+    Restores environment but continues even if font installation fails.
+
+.EXAMPLE
+    Import-PowerShellEnvironment -UseLegacyScript
+
+    Falls back to legacy script for advanced features (temporary compatibility).
+
+.NOTES
+    - Requires PowerShell 7.0 or later
+    - Creates necessary directories before restoring files
+    - All operations support WhatIf for safe preview
+    - Font installations may require administrator privileges
+    - PowerShell modules are installed to ExternalModulesPath from config
+
+.INPUTS
+    None. Pipeline input not supported.
+
+.OUTPUTS
+    None. Outputs messages to the console and logs.
+
+.LINK
+    Export-PowerShellEnvironment
+    Invoke-WorkstationBackup
+#>
 function Import-PowerShellEnvironment {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
@@ -5,39 +75,86 @@ function Import-PowerShellEnvironment {
         [string]$RepoRoot,
 
         [Parameter()]
-        [string]$LegacyScriptPath,
-
-        [Parameter()]
         [string]$ConfigPath,
 
         [Parameter()]
-        [switch]$SkipGit,
+        [switch]$SkipFontInstallFailures,
 
         [Parameter()]
-        [switch]$SkipFontInstallFailures
+        [switch]$UseLegacyScript
     )
 
-    $RepoRoot = Get-WorkstationBackupRoot -RepoRoot $RepoRoot -ModuleRoot $PSScriptRoot
-    if (-not $LegacyScriptPath) {
-        $LegacyScriptPath = Join-Path $RepoRoot 'Sync-PowerShellEnvironment.ps1'
+    Set-StrictMode -Version Latest
+    $ErrorActionPreference = 'Stop'
+
+    if (-not $RepoRoot) {
+        $RepoRoot = Get-WorkstationBackupRoot
     }
 
-    if (-not (Test-Path -LiteralPath $LegacyScriptPath)) {
-        throw "Legacy PowerShell environment script was not found at '$LegacyScriptPath'. During the migration, this function expects the original script to stay in place."
+    if (-not $ConfigPath) {
+        $ConfigPath = Join-Path $RepoRoot 'powershell-sync.config.json'
     }
 
-    $arguments = @('-Mode', 'Apply')
-    if ($ConfigPath) { $arguments += @('-ConfigPath', $ConfigPath) }
-    if ($SkipGit) { $arguments += '-SkipGit' }
-    if ($SkipFontInstallFailures) { $arguments += '-SkipFontInstallFailures' }
-    if ($WhatIfPreference) { $arguments += '-WhatIf' }
-
-    Write-BackupLog "Delegating PowerShell environment import to legacy script: $LegacyScriptPath"
-
-    if ($PSCmdlet.ShouldProcess($LegacyScriptPath, 'Run legacy Apply mode')) {
-        & $LegacyScriptPath @arguments
-        if ($LASTEXITCODE -ne 0) {
-            throw 'Legacy PowerShell environment import failed.'
+    if ($UseLegacyScript) {
+        # Fallback to legacy script
+        $LegacyScriptPath = Join-Path $RepoRoot 'Scripts\Legacy\Sync-PowerShellEnvironment.ps1'
+        if (-not (Test-Path -LiteralPath $LegacyScriptPath)) {
+            throw "Legacy import script not found: $LegacyScriptPath"
         }
+
+        Write-BackupLog -Message "Running legacy PowerShell environment import via '$LegacyScriptPath'"
+
+        $legacyArguments = @(
+            '-NoProfile'
+            '-ExecutionPolicy', 'Bypass'
+            '-File', $LegacyScriptPath
+            '-Mode', 'Apply'
+            '-ConfigPath', $ConfigPath
+            '-SkipGit'
+        )
+
+        if ($SkipFontInstallFailures) {
+            $legacyArguments += '-SkipFontInstallFailures'
+        }
+
+        if ($WhatIfPreference) {
+            $legacyArguments += '-WhatIf'
+        }
+
+        & pwsh.exe @legacyArguments
+
+        if ($LASTEXITCODE -ne 0) {
+            throw "Legacy PowerShell import failed with exit code $LASTEXITCODE."
+        }
+    }
+    else {
+        # Use module functions
+        if (-not (Test-Path -LiteralPath $ConfigPath)) {
+            throw "Config file not found: $ConfigPath"
+        }
+
+        $config = Read-PowerShellSyncConfig -Path $ConfigPath
+        Write-BackupLog -Message "Loaded config from $ConfigPath"
+
+        # Initialize directories
+        Initialize-ConfigDirectories -Config $config
+
+        # Sync module paths
+        Sync-PSModulePath -Config $config
+
+        # Restore PowerShell profiles
+        Restore-PowerShellProfiles -Config $config
+
+        # Restore settings files
+        Restore-SettingsFiles -Config $config
+
+        # Restore Oh My Posh themes
+        Restore-OhMyPoshThemes -Config $config
+
+        # Restore Windows Terminal settings
+        Restore-WindowsTerminal -Config $config
+
+        # Install PowerShell Gallery modules
+        Import-PowerShellModules -Config $config
     }
 }

@@ -23,6 +23,6 @@ function Get-WorkstationBackupRoot {
     }
 
     return $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath(
-        (Split-Path -Path $ModuleRoot -Parent)
+        (Split-Path -Path (Split-Path -Path $ModuleRoot -Parent) -Parent)
     )
 }
