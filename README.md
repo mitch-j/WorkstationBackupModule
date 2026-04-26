@@ -107,23 +107,23 @@ Invoke-WorkstationBackup
 
 ### `powershell-sync.config.json` Schema
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `RepoRoot` | string | Root directory for backups (supports `$env:` variables) |
-| `PersonalModulesPath` | string | Path for personal PowerShell modules |
-| `ExternalModulesPath` | string | Path for external (PSGallery) modules |
-| `InventoryDirectory` | string | Path for JSON manifests |
-| `ProfilesDirectory` | string | Path for PowerShell profiles |
-| `SettingsDirectory` | string | Path for application settings |
-| `ThemesDirectory` | string | Path for Oh My Posh themes |
-| `FontsDirectory` | string | Path for font files |
-| `LogDirectory` | string | Path for operation logs |
-| `DefaultRepository` | string | Default PowerShell Gallery (default: `PSGallery`) |
-| `Profiles` | array | Profile mappings (source → destination) |
-| `SettingsFiles` | array | Settings file mappings |
-| `OhMyPosh` | object | Oh My Posh backup settings |
-| `Fonts` | object | Nerd Fonts configuration |
-| `WindowsTerminal` | object | Windows Terminal backup settings |
+| Property              | Type   | Description                                             |
+|:----------------------|:-------|:--------------------------------------------------------|
+| `RepoRoot`            | string | Root directory for backups (supports `$env:` variables) |
+| `PersonalModulesPath` | string | Path for personal PowerShell modules                    |
+| `ExternalModulesPath` | string | Path for external (PSGallery) modules                   |
+| `InventoryDirectory`  | string | Path for JSON manifests                                 |
+| `ProfilesDirectory`   | string | Path for PowerShell profiles                            |
+| `SettingsDirectory`   | string | Path for application settings                           |
+| `ThemesDirectory`     | string | Path for Oh My Posh themes                              |
+| `FontsDirectory`      | string | Path for font files                                     |
+| `LogDirectory`        | string | Path for operation logs                                 |
+| `DefaultRepository`   | string | Default PowerShell Gallery (default: `PSGallery`)       |
+| `Profiles`            | array  | Profile mappings (source → destination)                 |
+| `SettingsFiles`       | array  | Settings file mappings                                  |
+| `OhMyPosh`            | object | Oh My Posh backup settings                              |
+| `Fonts`               | object | Nerd Fonts configuration                                |
+| `WindowsTerminal`     | object | Windows Terminal backup settings                        |
 
 ### Example: Custom Settings Files
 
@@ -212,7 +212,7 @@ These functions are available for advanced usage:
 
 ## Architecture
 
-```
+```text
 WorkstationBackup/
 ├── Private/              # Internal helper functions
 │   ├── Backup-*.ps1     # Backup operations
@@ -269,7 +269,7 @@ Export-PowerShellEnvironment
 
 All operations generate timestamped logs:
 
-```
+```text
 Logs/workstation-backup-2026-04.log
 
 [2026-04-26 12:46:37] [INFO] Loaded config from C:\...\powershell-sync.config.json
@@ -286,6 +286,7 @@ Logs are written to the directory specified in `LogDirectory` config.
 **Issue**: Warning about profile source not found
 
 **Solution**: Ensure PowerShell profiles exist before backup:
+
 ```powershell
 $PROFILE.CurrentUserCurrentHost  # Check paths
 New-Item -Path $PROFILE.CurrentUserCurrentHost -Force  # Create if missing
@@ -296,6 +297,7 @@ New-Item -Path $PROFILE.CurrentUserCurrentHost -Force  # Create if missing
 **Issue**: "Config file not found"
 
 **Solution**: Ensure `powershell-sync.config.json` is in the module root or repository root:
+
 ```powershell
 $RepoRoot = Get-WorkstationBackupRoot
 Get-ChildItem $RepoRoot -Filter "*.json"
@@ -306,6 +308,7 @@ Get-ChildItem $RepoRoot -Filter "*.json"
 **Issue**: Gallery modules not backed up
 
 **Solution**: Verify PowerShellGet availability:
+
 ```powershell
 Get-InstalledModule | Measure-Object  # Check if modules exist
 Get-Module PowerShellGet -ListAvailable  # Verify PowerShellGet is available
@@ -316,6 +319,7 @@ Get-Module PowerShellGet -ListAvailable  # Verify PowerShellGet is available
 **Issue**: Settings file at expected path but not backed up
 
 **Solution**: Check Windows Terminal installation path:
+
 ```powershell
 Test-Path "$env:LOCALAPPDATA\Packages\Microsoft.WindowsTerminal*"
 ```

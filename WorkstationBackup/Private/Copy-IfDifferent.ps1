@@ -1,4 +1,5 @@
 function Copy-IfDifferent {
+    [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(Mandatory)]
         [string]$Source,
