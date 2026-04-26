@@ -102,6 +102,9 @@ function Export-PowerShellEnvironment {
         [switch]$WriteInternalModuleManifest,
 
         [Parameter()]
+        [switch]$UpdateFontConfigFromDiscovery,
+
+        [Parameter()]
         [switch]$UseLegacyScript
     )
 
@@ -117,13 +120,12 @@ function Export-PowerShellEnvironment {
     }
 
     if ($UseLegacyScript) {
-        # Fallback to legacy script
         $LegacyScriptPath = Join-Path $RepoRoot 'Scripts\Legacy\Sync-PowerShellEnvironment.ps1'
         if (-not (Test-Path -LiteralPath $LegacyScriptPath)) {
             throw "Legacy export script not found: $LegacyScriptPath"
         }
 
-        Write-BackupLog -Message "Running legacy PowerShell environment export via '$LegacyScriptPath'"
+        Write-BackupLog -Message "Running legacy PowerShell environment export via '$LegacyScriptPath'" -Level 'WARN'
 
         $legacyArguments = @(
             '-NoProfile'
@@ -134,6 +136,10 @@ function Export-PowerShellEnvironment {
             '-SkipGit'
         )
 
+        if ($UpdateFontConfigFromDiscovery) {
+            $legacyArguments += '-UpdateFontConfigFromDiscovery'
+        }
+
         if ($WhatIfPreference) {
             $legacyArguments += '-WhatIf'
         }
@@ -143,37 +149,25 @@ function Export-PowerShellEnvironment {
         if ($LASTEXITCODE -ne 0) {
             throw "Legacy PowerShell export failed with exit code $LASTEXITCODE."
         }
+
+        return
     }
-    else {
-        # Use module functions
-        if (-not (Test-Path -LiteralPath $ConfigPath)) {
-            throw "Config file not found: $ConfigPath"
-        }
 
-        $config = Read-PowerShellSyncConfig -Path $ConfigPath
-        Write-BackupLog -Message "Loaded config from $ConfigPath"
-
-        # Initialize directories
-        Initialize-ConfigDirectories -Config $config
-
-        # Sync module paths
-        Sync-PSModulePath -Config $config
-
-        # Export PowerShell profiles
-        Backup-PowerShellProfiles -Config $config
-
-        # Export settings files
-        Backup-SettingsFiles -Config $config
-
-        # Export Oh My Posh themes
-        Backup-OhMyPoshThemes -Config $config
-
-        # Export Windows Terminal settings
-        Backup-WindowsTerminal -Config $config
-
-        # Export PowerShell Gallery modules
-        Export-PowerShellModules -Config $config
+    if (-not (Test-Path -LiteralPath $ConfigPath)) {
+        throw "Config file not found: $ConfigPath"
     }
+
+    $config = Read-PowerShellSyncConfig -Path $ConfigPath
+    Write-BackupLog -Message "Loaded config from $ConfigPath"
+
+    if (Get-Command -Name Set-BackupUserEnvironmentVariable -ErrorAction SilentlyContinue) {
+        Set-BackupUserEnvironmentVariable -Name 'PS_CONFIG_ROOT' -Value $config.RepoRoot
+    }
+
+    Invoke-ExportPowerShellEnvironment `
+        -Config $config `
+        -UpdateFontConfigFromDiscovery:$UpdateFontConfigFromDiscovery `
+        -WhatIf:$WhatIfPreference
 
     if ($InternalModulesSourceRoot -and $InternalModulesBackupRoot) {
         Write-BackupLog -Message "Backing up internal modules from '$InternalModulesSourceRoot' to '$InternalModulesBackupRoot'"
@@ -184,8 +178,5 @@ function Export-PowerShellEnvironment {
             -ExcludeModules $ExcludeInternalModules `
             -WriteManifest:$WriteInternalModuleManifest `
             -WhatIf:$WhatIfPreference
-    }
-    else {
-        Write-BackupLog -Message 'Internal module backup skipped because source or destination path was not provided.' -Level 'WARN'
     }
 }

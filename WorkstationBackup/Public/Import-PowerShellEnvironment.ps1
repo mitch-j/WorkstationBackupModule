@@ -96,13 +96,12 @@ function Import-PowerShellEnvironment {
     }
 
     if ($UseLegacyScript) {
-        # Fallback to legacy script
         $LegacyScriptPath = Join-Path $RepoRoot 'Scripts\Legacy\Sync-PowerShellEnvironment.ps1'
         if (-not (Test-Path -LiteralPath $LegacyScriptPath)) {
             throw "Legacy import script not found: $LegacyScriptPath"
         }
 
-        Write-BackupLog -Message "Running legacy PowerShell environment import via '$LegacyScriptPath'"
+        Write-BackupLog -Message "Running legacy PowerShell environment import via '$LegacyScriptPath'" -Level 'WARN'
 
         $legacyArguments = @(
             '-NoProfile'
@@ -126,35 +125,23 @@ function Import-PowerShellEnvironment {
         if ($LASTEXITCODE -ne 0) {
             throw "Legacy PowerShell import failed with exit code $LASTEXITCODE."
         }
+
+        return
     }
-    else {
-        # Use module functions
-        if (-not (Test-Path -LiteralPath $ConfigPath)) {
-            throw "Config file not found: $ConfigPath"
-        }
 
-        $config = Read-PowerShellSyncConfig -Path $ConfigPath
-        Write-BackupLog -Message "Loaded config from $ConfigPath"
-
-        # Initialize directories
-        Initialize-ConfigDirectories -Config $config
-
-        # Sync module paths
-        Sync-PSModulePath -Config $config
-
-        # Restore PowerShell profiles
-        Restore-PowerShellProfiles -Config $config
-
-        # Restore settings files
-        Restore-SettingsFiles -Config $config
-
-        # Restore Oh My Posh themes
-        Restore-OhMyPoshThemes -Config $config
-
-        # Restore Windows Terminal settings
-        Restore-WindowsTerminal -Config $config
-
-        # Install PowerShell Gallery modules
-        Import-PowerShellModules -Config $config
+    if (-not (Test-Path -LiteralPath $ConfigPath)) {
+        throw "Config file not found: $ConfigPath"
     }
+
+    $config = Read-PowerShellSyncConfig -Path $ConfigPath
+    Write-BackupLog -Message "Loaded config from $ConfigPath"
+
+    if (Get-Command -Name Set-BackupUserEnvironmentVariable -ErrorAction SilentlyContinue) {
+        Set-BackupUserEnvironmentVariable -Name 'PS_CONFIG_ROOT' -Value $config.RepoRoot
+    }
+
+    Invoke-ApplyPowerShellEnvironment `
+        -Config $config `
+        -SkipFontInstallFailures:$SkipFontInstallFailures `
+        -WhatIf:$WhatIfPreference
 }
