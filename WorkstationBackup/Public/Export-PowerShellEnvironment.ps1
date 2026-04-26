@@ -11,37 +11,69 @@ function Export-PowerShellEnvironment {
         [string]$ConfigPath,
 
         [Parameter()]
-        [switch]$SkipGit,
+        [string]$InternalModulesSourceRoot,
 
         [Parameter()]
-        [switch]$UpdateFontConfigFromDiscovery,
+        [string]$InternalModulesBackupRoot,
 
         [Parameter()]
-        [switch]$SkipFontInstallFailures
+        [string[]]$ExcludeInternalModules = @(),
+
+        [Parameter()]
+        [switch]$WriteInternalModuleManifest
     )
 
-    $RepoRoot = Get-WorkstationBackupRoot -RepoRoot $RepoRoot -ModuleRoot $PSScriptRoot
+    Set-StrictMode -Version Latest
+    $ErrorActionPreference = 'Stop'
+
+    if (-not $RepoRoot) {
+        $RepoRoot = Get-WorkstationBackupRoot
+    }
+
     if (-not $LegacyScriptPath) {
-        $LegacyScriptPath = Join-Path $RepoRoot 'Sync-PowerShellEnvironment.ps1'
+        $LegacyScriptPath = Join-Path $RepoRoot 'Scripts\Legacy\Sync-PowerShellEnvironment.ps1'
+    }
+
+    if (-not $ConfigPath) {
+        $ConfigPath = Join-Path $RepoRoot 'powershell-sync.config.json'
     }
 
     if (-not (Test-Path -LiteralPath $LegacyScriptPath)) {
-        throw "Legacy PowerShell environment script was not found at '$LegacyScriptPath'. During the migration, this function expects the original script to stay in place."
+        throw "Legacy export script not found: $LegacyScriptPath"
     }
 
-    $arguments = @('-Mode', 'Export')
-    if ($ConfigPath) { $arguments += @('-ConfigPath', $ConfigPath) }
-    if ($SkipGit) { $arguments += '-SkipGit' }
-    if ($UpdateFontConfigFromDiscovery) { $arguments += '-UpdateFontConfigFromDiscovery' }
-    if ($SkipFontInstallFailures) { $arguments += '-SkipFontInstallFailures' }
-    if ($WhatIfPreference) { $arguments += '-WhatIf' }
+    Write-BackupLog -Message "Running legacy PowerShell environment export via '$LegacyScriptPath'"
 
-    Write-BackupLog "Delegating PowerShell environment export to legacy script: $LegacyScriptPath"
+    $legacyArguments = @(
+        '-NoProfile'
+        '-ExecutionPolicy', 'Bypass'
+        '-File', $LegacyScriptPath
+        '-Mode', 'Export'
+        '-ConfigPath', $ConfigPath
+        '-SkipGit'
+    )
 
-    if ($PSCmdlet.ShouldProcess($LegacyScriptPath, 'Run legacy Export mode')) {
-        & $LegacyScriptPath @arguments
-        if ($LASTEXITCODE -ne 0) {
-            throw 'Legacy PowerShell environment export failed.'
-        }
+    if ($WhatIfPreference) {
+        $legacyArguments += '-WhatIf'
+    }
+
+    & pwsh.exe @legacyArguments
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Legacy PowerShell export failed with exit code $LASTEXITCODE."
+    }
+
+    if ($InternalModulesSourceRoot -and $InternalModulesBackupRoot) {
+        Write-BackupLog -Message "Backing up internal modules from '$InternalModulesSourceRoot' to '$InternalModulesBackupRoot'"
+
+        Export-InternalModuleBackup `
+            -SourceRoot $InternalModulesSourceRoot `
+            -DestinationRoot $InternalModulesBackupRoot `
+            -ExcludeModules $ExcludeInternalModules `
+            -WriteManifest:$WriteInternalModuleManifest `
+            -WhatIf:$WhatIfPreference
+    }
+    else {
+        Write-BackupLog -Message 'Internal module backup skipped because source or destination path was not provided.' -Level 'WARN'
     }
 }

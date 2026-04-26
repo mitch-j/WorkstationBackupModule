@@ -2,7 +2,7 @@ function Invoke-WorkstationBackup {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
         [Parameter()]
-        [string]$RepoRoot,
+        [string]$RepoRoot = 'C:\Dev\work\WorkstationBackup',
 
         [Parameter()]
         [string]$ConfigPath,
@@ -29,7 +29,19 @@ function Invoke-WorkstationBackup {
         [string]$CommitMessage,
 
         [Parameter()]
-        [string[]]$ChocoBackupArguments = @()
+        [string[]]$ChocoBackupArguments = @(),
+
+        [Parameter()]
+        [string]$InternalModulesSourceRoot,
+
+        [Parameter()]
+        [string]$InternalModulesBackupRoot,
+
+        [Parameter()]
+        [string[]]$ExcludeInternalModules = @(),
+
+        [Parameter()]
+        [switch]$WriteInternalModuleManifest
     )
 
     $RepoRoot = Get-WorkstationBackupRoot -RepoRoot $RepoRoot -ModuleRoot $PSScriptRoot
