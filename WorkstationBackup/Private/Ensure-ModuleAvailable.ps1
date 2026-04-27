@@ -1,4 +1,4 @@
-function Ensure-ModuleAvailable {
+function Install-ModuleAvailable {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
         [Parameter(Mandatory)]

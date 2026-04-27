@@ -8,9 +8,6 @@ function Invoke-WorkstationBackup {
         [string]$ConfigPath,
 
         [Parameter()]
-        [string]$LegacyPowerShellScriptPath,
-
-        [Parameter()]
         [switch]$SkipPowerShellBackup,
 
         [Parameter()]
@@ -53,10 +50,11 @@ function Invoke-WorkstationBackup {
             SkipGit  = $true
         }
         if ($ConfigPath) { $exportParameters.ConfigPath = $ConfigPath }
-        if ($LegacyPowerShellScriptPath) { $exportParameters.LegacyScriptPath = $LegacyPowerShellScriptPath }
         if ($WhatIfPreference) { $exportParameters.WhatIf = $true }
 
-        Export-PowerShellEnvironment @exportParameters
+        if ($PSCmdlet.ShouldProcess("PowerShell environment", "Export to backup repository")) {
+            Export-PowerShellEnvironment @exportParameters
+        }
         $completedStages.Add('PowerShell')
     }
 
@@ -85,7 +83,9 @@ function Invoke-WorkstationBackup {
         }
 
         if ($WhatIfPreference) { $chocoParameters.WhatIf = $true }
-        Export-ChocoMachineBackup @chocoParameters
+        if ($PSCmdlet.ShouldProcess("Chocolatey packages", "Export to backup repository")) {
+            Export-ChocoMachineBackup @chocoParameters
+        }
         $completedStages.Add('Chocolatey')
     }
 
@@ -101,7 +101,9 @@ function Invoke-WorkstationBackup {
             $CommitMessage = 'Workstation backup from {0} on {1} [{2}]' -f $identity.ComputerName, $identity.DateStamp, $stageText
         }
 
-        Invoke-BackupGitSync -RepoRoot $RepoRoot -CommitMessage $CommitMessage -SkipPull:$SkipPull -SkipPush:$SkipPush -WhatIf:$WhatIfPreference
+        if ($PSCmdlet.ShouldProcess("Git repository", "Sync backup changes")) {
+            Invoke-BackupGitSync -RepoRoot $RepoRoot -CommitMessage $CommitMessage -SkipPull:$SkipPull -SkipPush:$SkipPush -WhatIf:$WhatIfPreference
+        }
     }
 
     [pscustomobject]@{

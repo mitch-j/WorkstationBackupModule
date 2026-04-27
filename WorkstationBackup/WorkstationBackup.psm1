@@ -23,7 +23,6 @@ $privateFiles = @(
 
     'Private\Get-NerdFontStyleSuffixPattern.ps1'
     'Private\Convert-InstalledFontNameToNerdFontCandidate.ps1'
-    'Private\Get-NerdFontCandidatesFromLegacyConfig.ps1'
     'Private\Get-DesiredNerdFontFamilies.ps1'
     'Private\Get-InstalledNerdFontFamilies.ps1'
     'Private\Get-AvailableNerdFonts.ps1'

@@ -15,7 +15,7 @@ function Copy-IfDifferent {
 
     $parent = Split-Path -Path $Destination -Parent
     if ($parent) {
-        Ensure-Directory -Path $parent
+        New-Directory -Path $parent
     }
 
     $shouldCopy = $true

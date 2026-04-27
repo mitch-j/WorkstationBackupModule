@@ -11,7 +11,7 @@ function Sync-PSModulePath {
     )
 
     foreach ($path in $preferred) {
-        Ensure-Directory -Path $path
+        New-Directory -Path $path
     }
 
     $existing = $env:PSModulePath -split ';' |

@@ -94,7 +94,6 @@
         'Private\Get-DesiredNerdFontFamilies.ps1'
         'Private\Get-InstalledGalleryModuleRecords.ps1'
         'Private\Get-InstalledNerdFontFamilies.ps1'
-        'Private\Get-NerdFontCandidatesFromLegacyConfig.ps1'
         'Private\Get-NerdFontStyleSuffixPattern.ps1'
         'Private\Get-WorkstationBackupRoot.ps1'
         'Private\Get-WorkstationIdentity.ps1'

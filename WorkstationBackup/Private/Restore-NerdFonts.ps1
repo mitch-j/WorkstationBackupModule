@@ -16,13 +16,13 @@ function Restore-NerdFonts {
         return
     }
 
-    $requiredFonts = @(Get-DesiredNerdFontFamilies -Config $Config)
+    $requiredFonts = @(Get-DesiredNerdFontFamily -Config $Config)
     if ($requiredFonts.Count -eq 0) {
         Write-BackupLog -Message 'No required Nerd Fonts are configured. Skipping font install.'
         return
     }
 
-    $providerReady = Initialize-FontRestorePrerequisites `
+    $providerReady = Initialize-FontRestorePrerequisite `
         -Config $Config `
         -SkipFontInstallFailures:$SkipFontInstallFailures `
         -WhatIf:$WhatIfPreference
@@ -42,8 +42,8 @@ function Restore-NerdFonts {
         throw $message
     }
 
-    $available = @(Get-AvailableNerdFonts -Config $Config)
-    $installed = @(Get-InstalledNerdFontFamilies -Config $Config)
+    $available = @(Get-AvailableNerdFont -Config $Config)
+    $installed = @(Get-InstalledNerdFontFamily -Config $Config)
 
     foreach ($fontName in $requiredFonts) {
         if ($fontName -in $installed) {

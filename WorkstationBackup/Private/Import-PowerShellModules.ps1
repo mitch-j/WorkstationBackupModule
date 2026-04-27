@@ -1,4 +1,4 @@
-function Import-PowerShellModules {
+function Import-PowerShellModule {
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(Mandatory)]

@@ -7,9 +7,6 @@
     settings files, Oh My Posh themes, Windows Terminal settings, and PowerShell
     Gallery modules to a backup repository for version control and restoration.
 
-    By default, uses the new modular export functions. Can fall back to the legacy
-    script for features not yet migrated via the -UseLegacyScript switch.
-
 .PARAMETER RepoRoot
     The root directory of the backup repository. If not provided, automatically
     determined from the module's location. Supports $env: variable expansion.
@@ -32,14 +29,10 @@
 .PARAMETER WriteInternalModuleManifest
     If specified, writes a manifest JSON file listing all backed up internal modules.
 
-.PARAMETER UseLegacyScript
-    If specified, uses the legacy Sync-PowerShellEnvironment.ps1 script instead
-    of the new modular functions. Use this for features not yet migrated.
-
 .EXAMPLE
     Export-PowerShellEnvironment
 
-    Exports the current environment using the new modular functions with defaults.
+    Exports the current environment using the modular functions with defaults.
 
 .EXAMPLE
     Export-PowerShellEnvironment -WhatIf
@@ -58,11 +51,6 @@
         -WriteInternalModuleManifest
 
     Exports environment and also backs up custom modules with a manifest.
-
-.EXAMPLE
-    Export-PowerShellEnvironment -UseLegacyScript
-
-    Falls back to legacy script for advanced features (temporary compatibility).
 
 .NOTES
     - Requires PowerShell 7.0 or later
@@ -102,10 +90,7 @@ function Export-PowerShellEnvironment {
         [switch]$WriteInternalModuleManifest,
 
         [Parameter()]
-        [switch]$UpdateFontConfigFromDiscovery,
-
-        [Parameter()]
-        [switch]$UseLegacyScript
+        [switch]$UpdateFontConfigFromDiscovery
 
     )
 
@@ -120,42 +105,6 @@ function Export-PowerShellEnvironment {
         $ConfigPath = Join-Path $RepoRoot 'powershell-sync.config.json'
     }
 
-    if ($UseLegacyScript) {
-        $LegacyScriptPath = Join-Path $RepoRoot 'Scripts\Legacy\Sync-PowerShellEnvironment.ps1'
-        if (-not (Test-Path -LiteralPath $LegacyScriptPath)) {
-            throw "Legacy export script not found: $LegacyScriptPath"
-        }
-
-        Write-BackupLog -Message "Running legacy PowerShell environment export via '$LegacyScriptPath'" -Level 'WARN'
-
-        $legacyArguments = @(
-            '-NoProfile'
-            '-ExecutionPolicy', 'Bypass'
-            '-File', $LegacyScriptPath
-            '-Mode', 'Export'
-            '-ConfigPath', $ConfigPath
-            '-SkipGit'
-        )
-
-        Set-BackupUserEnvironmentVariable -Name 'PS_CONFIG_ROOT' -Value $config.RepoRoot -WhatIf:$WhatIfPreference
-
-        if ($UpdateFontConfigFromDiscovery) {
-            $legacyArguments += '-UpdateFontConfigFromDiscovery'
-        }
-
-        if ($WhatIfPreference) {
-            $legacyArguments += '-WhatIf'
-        }
-
-        & pwsh.exe @legacyArguments
-
-        if ($LASTEXITCODE -ne 0) {
-            throw "Legacy PowerShell export failed with exit code $LASTEXITCODE."
-        }
-
-        return
-    }
-
     if (-not (Test-Path -LiteralPath $ConfigPath)) {
         throw "Config file not found: $ConfigPath"
     }
@@ -163,21 +112,27 @@ function Export-PowerShellEnvironment {
     $config = Read-PowerShellSyncConfig -Path $ConfigPath
     Write-BackupLog -Message "Loaded config from $ConfigPath"
 
-    Set-BackupUserEnvironmentVariable -Name 'PS_CONFIG_ROOT' -Value $config.RepoRoot
+    if ($PSCmdlet.ShouldProcess("User environment variable PS_CONFIG_ROOT", "Set value to '$($config.RepoRoot)'")) {
+        Set-BackupUserEnvironmentVariable -Name 'PS_CONFIG_ROOT' -Value $config.RepoRoot
+    }
 
-    Invoke-ExportPowerShellEnvironment `
-        -Config $config `
-        -UpdateFontConfigFromDiscovery:$UpdateFontConfigFromDiscovery `
-        -WhatIf:$WhatIfPreference
+    if ($PSCmdlet.ShouldProcess("PowerShell environment", "Export to backup repository")) {
+        Invoke-ExportPowerShellEnvironment `
+            -Config $config `
+            -UpdateFontConfigFromDiscovery:$UpdateFontConfigFromDiscovery `
+            -WhatIf:$WhatIfPreference
+    }
 
     if ($InternalModulesSourceRoot -and $InternalModulesBackupRoot) {
         Write-BackupLog -Message "Backing up internal modules from '$InternalModulesSourceRoot' to '$InternalModulesBackupRoot'"
 
-        Export-InternalModuleBackup `
-            -SourceRoot $InternalModulesSourceRoot `
-            -DestinationRoot $InternalModulesBackupRoot `
-            -ExcludeModules $ExcludeInternalModules `
-            -WriteManifest:$WriteInternalModuleManifest `
-            -WhatIf:$WhatIfPreference
+        if ($PSCmdlet.ShouldProcess("Internal modules", "Export from '$InternalModulesSourceRoot' to '$InternalModulesBackupRoot'")) {
+            Export-InternalModuleBackup `
+                -SourceRoot $InternalModulesSourceRoot `
+                -DestinationRoot $InternalModulesBackupRoot `
+                -ExcludeModules $ExcludeInternalModules `
+                -WriteManifest:$WriteInternalModuleManifest `
+                -WhatIf:$WhatIfPreference
+        }
     }
 }

@@ -1,4 +1,4 @@
-function Remove-OldBackups {
+function Remove-OldBackup {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
         [Parameter(Mandatory)]

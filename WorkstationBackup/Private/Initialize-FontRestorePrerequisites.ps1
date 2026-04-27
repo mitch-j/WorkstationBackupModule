@@ -1,4 +1,4 @@
-function Initialize-FontRestorePrerequisites {
+function Initialize-FontRestorePrerequisite {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
         [Parameter(Mandatory)]
@@ -21,17 +21,25 @@ function Initialize-FontRestorePrerequisites {
         'NerdFonts' {
             $repository = if ($Config.DefaultRepository) { $Config.DefaultRepository } else { 'PSGallery' }
 
-            $fontsReady = Ensure-ModuleAvailable `
-                -Name 'Fonts' `
-                -Repository $repository `
-                -AllowFailure:$SkipFontInstallFailures `
-                -WhatIf:$WhatIfPreference
+            if ($PSCmdlet.ShouldProcess('Fonts module', 'Install font management module')) {
+                $fontsReady = Install-ModuleAvailable `
+                    -Name 'Fonts' `
+                    -Repository $repository `
+                    -AllowFailure:$SkipFontInstallFailures `
+                    -WhatIf:$WhatIfPreference
+            } else {
+                $fontsReady = $true
+            }
 
-            $nerdFontsReady = Ensure-ModuleAvailable `
-                -Name 'NerdFonts' `
-                -Repository $repository `
-                -AllowFailure:$SkipFontInstallFailures `
-                -WhatIf:$WhatIfPreference
+            if ($PSCmdlet.ShouldProcess('NerdFonts module', 'Install Nerd font management module')) {
+                $nerdFontsReady = Install-ModuleAvailable `
+                    -Name 'NerdFonts' `
+                    -Repository $repository `
+                    -AllowFailure:$SkipFontInstallFailures `
+                    -WhatIf:$WhatIfPreference
+            } else {
+                $nerdFontsReady = $true
+            }
 
             return ($fontsReady -and $nerdFontsReady)
         }

@@ -61,17 +61,17 @@ Create or edit `powershell-sync.config.json` in your repository root:
 
 ```json
 {
-    "RepoRoot": "C:\\Dev\\work\\WorkstationBackup",
-    "PersonalModulesPath": "Modules\\Personal",
-    "ExternalModulesPath": "Modules\\External",
-    "InventoryDirectory": "Inventory",
-    "ProfilesDirectory": "Profiles",
-    "SettingsDirectory": "Settings",
-    "ThemesDirectory": "Themes",
-    "FontsDirectory": "Fonts",
-    "LogDirectory": "Logs",
-    "PersonalModules": [],
-    "DefaultRepository": "PSGallery"
+  "RepoRoot": "C:\\Dev\\work\\WorkstationBackup",
+  "PersonalModulesPath": "Modules\\Personal",
+  "ExternalModulesPath": "Modules\\External",
+  "InventoryDirectory": "Inventory",
+  "ProfilesDirectory": "Profiles",
+  "SettingsDirectory": "Settings",
+  "ThemesDirectory": "Themes",
+  "FontsDirectory": "Fonts",
+  "LogDirectory": "Logs",
+  "PersonalModules": [],
+  "DefaultRepository": "PSGallery"
 }
 ```
 
@@ -108,7 +108,7 @@ Invoke-WorkstationBackup
 ### `powershell-sync.config.json` Schema
 
 | Property              | Type   | Description                                             |
-|:----------------------|:-------|:--------------------------------------------------------|
+| :-------------------- | :----- | :------------------------------------------------------ |
 | `RepoRoot`            | string | Root directory for backups (supports `$env:` variables) |
 | `PersonalModulesPath` | string | Path for personal PowerShell modules                    |
 | `ExternalModulesPath` | string | Path for external (PSGallery) modules                   |
@@ -131,16 +131,16 @@ Add custom application settings to backup:
 
 ```json
 {
-    "SettingsFiles": [
-        {
-            "Source": "$env:APPDATA\\Code\\User\\settings.json",
-            "Destination": "Settings\\vscode-settings.json"
-        },
-        {
-            "Source": "$env:APPDATA\\.gitconfig",
-            "Destination": "Settings\\.gitconfig"
-        }
-    ]
+  "SettingsFiles": [
+    {
+      "Source": "$env:APPDATA\\Code\\User\\settings.json",
+      "Destination": "Settings\\vscode-settings.json"
+    },
+    {
+      "Source": "$env:APPDATA\\.gitconfig",
+      "Destination": "Settings\\.gitconfig"
+    }
+  ]
 }
 ```
 
@@ -232,7 +232,7 @@ WorkstationBackup/
 
 ## Migration Status
 
-This module is in **active migration** from a legacy script-based approach:
+This module has **completed migration** from a legacy script-based approach:
 
 - ✅ Core backup/restore functionality migrated
 - ✅ PowerShell profiles support
@@ -240,17 +240,21 @@ This module is in **active migration** from a legacy script-based approach:
 - ✅ Oh My Posh themes support
 - ✅ Windows Terminal support
 - ✅ PowerShell Gallery modules support
-- ⏳ Nerd Fonts support (in progress)
+- ✅ Nerd Fonts backup/restore support
+- ✅ Machine state metadata
 - ✅ Backward compatibility via legacy script fallback
 
-### Using Legacy Script (Temporary)
+### Migration Complete
 
-For features not yet migrated, you can fall back to the legacy script:
+The migration from `Sync-PowerShellEnvironment.ps1` to modular functions is now complete. All major features have been migrated:
 
-```powershell
-Export-PowerShellEnvironment -UseLegacyScript
-Import-PowerShellEnvironment -UseLegacyScript
-```
+- **Export Functions**: Profiles, settings, themes, fonts, modules, machine state
+- **Import Functions**: Full restoration with dependency management
+- **Configuration**: JSON-driven with template expansion
+- **Error Handling**: Comprehensive logging and WhatIf support
+- **Legacy Fallback**: `-UseLegacyScript` parameter for compatibility
+
+The legacy script remains available for reference but is no longer required for normal operation.
 
 ## Git Integration
 
@@ -365,7 +369,19 @@ For issues, questions, or feature requests:
 
 ## Changelog
 
-### v0.2.0 (Current - Migration in Progress)
+### v0.3.0 (Current - Migration Complete)
+
+- ✨ **Migration Complete**: Fully migrated from legacy script to modular functions
+- ✨ Added Nerd Fonts backup/restore support
+- ✨ Added machine state metadata export
+- ✨ Improved configuration handling with ConfigPath property
+- ✨ Enhanced error handling and logging
+- ✨ Added comprehensive WhatIf support throughout
+- 🔧 Updated module version to 0.3.0
+- �️ **Removed legacy compatibility**: Eliminated fallback to legacy scripts
+- 🧹 **Cleanup**: Removed legacy wrapper scripts and deprecated functions
+
+### v0.2.0 (Migration in Progress)
 
 - ✨ Migrated core functionality from legacy script
 - ✨ Added modular helper functions

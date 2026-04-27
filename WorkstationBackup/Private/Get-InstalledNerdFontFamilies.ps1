@@ -1,4 +1,4 @@
-function Get-InstalledNerdFontFamilies {
+function Get-InstalledNerdFontFamily {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
@@ -9,7 +9,7 @@ function Get-InstalledNerdFontFamilies {
     $ErrorActionPreference = 'Stop'
 
     try {
-        if (-not (Ensure-ModuleAvailable -Name 'Fonts' -Repository $Config.DefaultRepository -ImportOnly -AllowFailure)) {
+        if (-not (Install-ModuleAvailable -Name 'Fonts' -Repository $Config.DefaultRepository -ImportOnly -AllowFailure)) {
             Write-BackupLog -Level 'WARN' -Message 'Fonts module is not available. Installed Nerd Font discovery will be skipped.'
             return @()
         }
@@ -52,7 +52,7 @@ function Get-InstalledNerdFontFamilies {
 
     $availableNames = @()
     try {
-        if (-not (Ensure-ModuleAvailable -Name 'NerdFonts' -Repository $Config.DefaultRepository -ImportOnly -AllowFailure)) {
+        if (-not (Install-ModuleAvailable -Name 'NerdFonts' -Repository $Config.DefaultRepository -ImportOnly -AllowFailure)) {
             Write-BackupLog -Level 'WARN' -Message 'NerdFonts module is not available. Installed Nerd Font discovery will be skipped.'
             return @()
         }

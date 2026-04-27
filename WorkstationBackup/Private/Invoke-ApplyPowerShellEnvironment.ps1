@@ -12,18 +12,42 @@ function Invoke-ApplyPowerShellEnvironment {
     Set-StrictMode -Version Latest
     $ErrorActionPreference = 'Stop'
 
-    Sync-PSModulePath -Config $Config
-    Initialize-ConfigDirectories -Config $Config
+    if ($PSCmdlet.ShouldProcess('PSModulePath', 'Synchronize module path')) {
+        Sync-PSModulePath -Config $Config
+    }
+    
+    if ($PSCmdlet.ShouldProcess('Config directories', 'Initialize configuration directories')) {
+        Initialize-ConfigDirectory -Config $Config
+    }
 
     # Bootstrap runtime dependencies first.
-    Import-PowerShellModules -Config $Config
-    Initialize-FontRestorePrerequisites -Config $Config -SkipFontInstallFailures:$SkipFontInstallFailures | Out-Null
+    if ($PSCmdlet.ShouldProcess('PowerShell modules', 'Import PowerShell modules')) {
+        Import-PowerShellModule -Config $Config
+    }
+    
+    if ($PSCmdlet.ShouldProcess('Font restore prerequisites', 'Initialize font restore prerequisites')) {
+        Initialize-FontRestorePrerequisite -Config $Config -SkipFontInstallFailures:$SkipFontInstallFailures | Out-Null
+    }
 
     # Apply repo-managed state.
-    Restore-PowerShellProfiles -Config $Config
-    Restore-SettingsFiles -Config $Config
-    Restore-OhMyPoshThemes -Config $Config
-    Restore-NerdFonts -Config $Config -SkipFontInstallFailures:$SkipFontInstallFailures
-    Restore-WindowsTerminal -Config $Config
+    if ($PSCmdlet.ShouldProcess('PowerShell profiles', 'Restore PowerShell profiles')) {
+        Restore-PowerShellProfiles -Config $Config
+    }
+    
+    if ($PSCmdlet.ShouldProcess('Settings files', 'Restore settings files')) {
+        Restore-SettingsFiles -Config $Config
+    }
+    
+    if ($PSCmdlet.ShouldProcess('Oh My Posh themes', 'Restore Oh My Posh themes')) {
+        Restore-OhMyPoshTheme -Config $Config
+    }
+    
+    if ($PSCmdlet.ShouldProcess('Nerd fonts', 'Restore Nerd fonts')) {
+        Restore-NerdFonts -Config $Config -SkipFontInstallFailures:$SkipFontInstallFailures
+    }
+    
+    if ($PSCmdlet.ShouldProcess('Windows Terminal settings', 'Restore Windows Terminal settings')) {
+        Restore-WindowsTerminal -Config $Config
+    }
 
 }

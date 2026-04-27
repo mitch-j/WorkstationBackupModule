@@ -1,4 +1,3 @@
-# Private/Invoke-ExportPowerShellEnvironment.ps1
 function Invoke-ExportPowerShellEnvironment {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
@@ -12,14 +11,39 @@ function Invoke-ExportPowerShellEnvironment {
     Set-StrictMode -Version Latest
     $ErrorActionPreference = 'Stop'
 
-    Sync-PSModulePath -Config $Config
-    Initialize-ConfigDirectories -Config $Config
+    if ($PSCmdlet.ShouldProcess('PSModulePath', 'Synchronize module path')) {
+        Sync-PSModulePath -Config $Config
+    }
+    
+    if ($PSCmdlet.ShouldProcess('Config directories', 'Initialize configuration directories')) {
+        Initialize-ConfigDirectory -Config $Config
+    }
 
-    Backup-PowerShellProfiles -Config $Config
-    Backup-SettingsFiles -Config $Config
-    Backup-OhMyPoshThemes -Config $Config
-    Export-NerdFonts -Config $Config -UpdateFontConfigFromDiscovery:$UpdateFontConfigFromDiscovery
-    Backup-WindowsTerminal -Config $Config
-    Export-PowerShellModules -Config $Config
-    Export-MachineState -Config $Config
+    if ($PSCmdlet.ShouldProcess('PowerShell profiles', 'Backup PowerShell profiles')) {
+        Backup-PowerShellProfile -Config $Config
+    }
+    
+    if ($PSCmdlet.ShouldProcess('Settings files', 'Backup settings files')) {
+        Backup-SettingsFile -Config $Config
+    }
+    
+    if ($PSCmdlet.ShouldProcess('Oh My Posh themes', 'Backup Oh My Posh themes')) {
+        Backup-OhMyPoshTheme -Config $Config
+    }
+    
+    if ($PSCmdlet.ShouldProcess('Nerd fonts', 'Export Nerd fonts')) {
+        Export-NerdFont -Config $Config -UpdateFontConfigFromDiscovery:$UpdateFontConfigFromDiscovery
+    }
+    
+    if ($PSCmdlet.ShouldProcess('Windows Terminal settings', 'Backup Windows Terminal settings')) {
+        Backup-WindowsTerminal -Config $Config
+    }
+    
+    if ($PSCmdlet.ShouldProcess('PowerShell modules', 'Export PowerShell modules')) {
+        Export-PowerShellModule -Config $Config
+    }
+    
+    if ($PSCmdlet.ShouldProcess('Machine state', 'Export machine state')) {
+        Export-MachineState -Config $Config
+    }
 }

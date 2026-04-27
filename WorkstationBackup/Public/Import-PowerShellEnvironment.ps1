@@ -7,9 +7,6 @@
     including profiles, settings files, Oh My Posh themes, Windows Terminal settings,
     and PowerShell Gallery modules.
 
-    By default, uses the new modular restore functions. Can fall back to the legacy
-    script for features not yet migrated via the -UseLegacyScript switch.
-
 .PARAMETER RepoRoot
     The root directory of the backup repository. If not provided, automatically
     determined from the module's location. Supports $env: variable expansion.
@@ -22,14 +19,10 @@
     If specified, continues restoration even if Nerd Font installation fails.
     Without this switch, font installation errors halt the process.
 
-.PARAMETER UseLegacyScript
-    If specified, uses the legacy Sync-PowerShellEnvironment.ps1 script instead
-    of the new modular functions. Use this for features not yet migrated.
-
 .EXAMPLE
     Import-PowerShellEnvironment
 
-    Restores the environment from default locations using new modular functions.
+    Restores the environment from default locations using modular functions.
 
 .EXAMPLE
     Import-PowerShellEnvironment -WhatIf
@@ -45,11 +38,6 @@
     Import-PowerShellEnvironment -SkipFontInstallFailures
 
     Restores environment but continues even if font installation fails.
-
-.EXAMPLE
-    Import-PowerShellEnvironment -UseLegacyScript
-
-    Falls back to legacy script for advanced features (temporary compatibility).
 
 .NOTES
     - Requires PowerShell 7.0 or later
@@ -78,10 +66,7 @@ function Import-PowerShellEnvironment {
         [string]$ConfigPath,
 
         [Parameter()]
-        [switch]$SkipFontInstallFailures,
-
-        [Parameter()]
-        [switch]$UseLegacyScript
+        [switch]$SkipFontInstallFailures
     )
 
     Set-StrictMode -Version Latest
@@ -95,40 +80,6 @@ function Import-PowerShellEnvironment {
         $ConfigPath = Join-Path $RepoRoot 'powershell-sync.config.json'
     }
 
-    if ($UseLegacyScript) {
-        $LegacyScriptPath = Join-Path $RepoRoot 'Scripts\Legacy\Sync-PowerShellEnvironment.ps1'
-        if (-not (Test-Path -LiteralPath $LegacyScriptPath)) {
-            throw "Legacy import script not found: $LegacyScriptPath"
-        }
-
-        Write-BackupLog -Message "Running legacy PowerShell environment import via '$LegacyScriptPath'" -Level 'WARN'
-
-        $legacyArguments = @(
-            '-NoProfile'
-            '-ExecutionPolicy', 'Bypass'
-            '-File', $LegacyScriptPath
-            '-Mode', 'Apply'
-            '-ConfigPath', $ConfigPath
-            '-SkipGit'
-        )
-
-        if ($SkipFontInstallFailures) {
-            $legacyArguments += '-SkipFontInstallFailures'
-        }
-
-        if ($WhatIfPreference) {
-            $legacyArguments += '-WhatIf'
-        }
-
-        & pwsh.exe @legacyArguments
-
-        if ($LASTEXITCODE -ne 0) {
-            throw "Legacy PowerShell import failed with exit code $LASTEXITCODE."
-        }
-
-        return
-    }
-
     if (-not (Test-Path -LiteralPath $ConfigPath)) {
         throw "Config file not found: $ConfigPath"
     }
@@ -136,10 +87,14 @@ function Import-PowerShellEnvironment {
     $config = Read-PowerShellSyncConfig -Path $ConfigPath
     Write-BackupLog -Message "Loaded config from $ConfigPath"
 
-    Set-BackupUserEnvironmentVariable -Name 'PS_CONFIG_ROOT' -Value $config.RepoRoot
+    if ($PSCmdlet.ShouldProcess("User environment variable PS_CONFIG_ROOT", "Set value to '$($config.RepoRoot)'")) {
+        Set-BackupUserEnvironmentVariable -Name 'PS_CONFIG_ROOT' -Value $config.RepoRoot
+    }
 
-    Invoke-ApplyPowerShellEnvironment `
-        -Config $config `
-        -SkipFontInstallFailures:$SkipFontInstallFailures `
-        -WhatIf:$WhatIfPreference
+    if ($PSCmdlet.ShouldProcess("PowerShell environment", "Import from backup repository")) {
+        Invoke-ApplyPowerShellEnvironment `
+            -Config $config `
+            -SkipFontInstallFailures:$SkipFontInstallFailures `
+            -WhatIf:$WhatIfPreference
+    }
 }

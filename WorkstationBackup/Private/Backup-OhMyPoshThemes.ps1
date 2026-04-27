@@ -1,4 +1,4 @@
-function Backup-OhMyPoshThemes {
+function Backup-OhMyPoshTheme {
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(Mandatory)]
@@ -12,13 +12,18 @@ function Backup-OhMyPoshThemes {
 
     $source = $Config.OhMyPosh.ThemeSourcePath
     $destination = $Config.OhMyPosh.ThemeBackupPath
-    Ensure-Directory -Path $destination
+    
+    if ($PSCmdlet.ShouldProcess($destination, 'Create directory')) {
+        New-Directory -Path $destination
+    }
 
     if (Test-Path -LiteralPath $source -PathType Container) {
         $themeFiles = Get-ChildItem -LiteralPath $source -Filter '*.omp.json' -File -ErrorAction SilentlyContinue
         foreach ($file in $themeFiles) {
             $target = Join-Path $destination $file.Name
-            Copy-IfDifferent -Source $file.FullName -Destination $target
+            if ($PSCmdlet.ShouldProcess($target, 'Copy oh-my-posh theme file')) {
+                Copy-IfDifferent -Source $file.FullName -Destination $target
+            }
         }
         return
     }
@@ -30,7 +35,9 @@ function Backup-OhMyPoshThemes {
         else {
             $destination
         }
-        Copy-IfDifferent -Source $source -Destination $target
+        if ($PSCmdlet.ShouldProcess($target, 'Copy oh-my-posh theme file')) {
+            Copy-IfDifferent -Source $source -Destination $target
+        }
         return
     }
 

@@ -1,4 +1,4 @@
-function Get-InstalledGalleryModuleRecords {
+function Get-InstalledGalleryModuleRecord {
     [CmdletBinding()]
     param()
 

@@ -1,11 +1,11 @@
-function Export-PowerShellModules {
+function Export-PowerShellModule {
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(Mandatory)]
         [object]$Config
     )
 
-    $installed = Get-InstalledGalleryModuleRecords
+    $installed = Get-InstalledGalleryModuleRecord
     $manifest = foreach ($module in $installed) {
         [pscustomobject]@{
             Name       = $module.Name

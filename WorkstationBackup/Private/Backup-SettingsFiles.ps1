@@ -1,4 +1,4 @@
-function Backup-SettingsFiles {
+function Backup-SettingsFile {
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(Mandatory)]
@@ -11,6 +11,8 @@ function Backup-SettingsFiles {
             Write-BackupLog -Level WARN -Message "Settings source not found, skipping: $($item.Source)"
             continue
         }
-        Copy-IfDifferent -Source $item.Source -Destination $item.Destination
+        if ($PSCmdlet.ShouldProcess($item.Destination, 'Copy settings file')) {
+            Copy-IfDifferent -Source $item.Source -Destination $item.Destination
+        }
     }
 }

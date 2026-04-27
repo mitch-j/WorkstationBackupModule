@@ -1,4 +1,4 @@
-function Backup-PowerShellProfiles {
+function Backup-PowerShellProfile {
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(Mandatory)]
@@ -11,6 +11,8 @@ function Backup-PowerShellProfiles {
             Write-BackupLog -Level WARN -Message "Profile source not found, skipping: $($item.Source)"
             continue
         }
-        Copy-IfDifferent -Source $item.Source -Destination $item.Destination
+        if ($PSCmdlet.ShouldProcess($item.Destination, 'Copy PowerShell profile')) {
+            Copy-IfDifferent -Source $item.Source -Destination $item.Destination
+        }
     }
 }

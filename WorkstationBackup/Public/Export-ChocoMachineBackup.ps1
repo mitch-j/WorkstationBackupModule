@@ -59,22 +59,14 @@ function Export-ChocoMachineBackup {
 
     Write-BackupLog ("Running Chocolatey export: choco " + ($chocoArguments -join ' '))
 
-    if ($WhatIfPreference) {
-        return [pscustomobject]@{
-            RepoRoot       = $RepoRoot
-            ConfigRoot     = $ConfigRoot
-            HostName       = $HostName
-            OutputFilePath = $outputFilePath
-            RetentionCount = $RetentionCount
+    if ($PSCmdlet.ShouldProcess("Chocolatey packages", "Export to '$outputFilePath'")) {
+        & choco @chocoArguments
+        if ($LASTEXITCODE -ne 0) {
+            throw 'Chocolatey export failed.'
         }
-    }
 
-    & choco @chocoArguments
-    if ($LASTEXITCODE -ne 0) {
-        throw 'Chocolatey export failed.'
+        Remove-OldBackups -Directory $hostConfigDirectory -Filter ("choco-manifest-{0}-*.config" -f $HostName.Trim()) -RetentionCount $RetentionCount -Description 'old Chocolatey machine manifest'
     }
-
-    Remove-OldBackups -Directory $hostConfigDirectory -Filter ("choco-manifest-{0}-*.config" -f $HostName.Trim()) -RetentionCount $RetentionCount -Description 'old Chocolatey machine manifest'
 
     Write-BackupLog "Chocolatey export completed successfully: $outputFilePath"
 

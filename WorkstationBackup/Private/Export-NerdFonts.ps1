@@ -1,4 +1,4 @@
-function Export-NerdFonts {
+function Export-NerdFont {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
         [Parameter(Mandatory)]
@@ -16,11 +16,11 @@ function Export-NerdFonts {
         return
     }
 
-    $desiredFonts = @(Get-DesiredNerdFontFamilies -Config $Config)
+    $desiredFonts = @(Get-DesiredNerdFontFamily -Config $Config)
     $discoveredFonts = @()
 
     if ($Config.Fonts.DiscoveryEnabled) {
-        $discoveredFonts = @(Get-InstalledNerdFontFamilies -Config $Config)
+        $discoveredFonts = @(Get-InstalledNerdFontFamily -Config $Config)
     }
 
     $payload = [pscustomobject]@{
@@ -36,7 +36,7 @@ function Export-NerdFonts {
     $inventoryDirectory = Split-Path -Path $inventoryPath -Parent
 
     if ($inventoryDirectory) {
-        Ensure-Directory -Path $inventoryDirectory -WhatIf:$WhatIfPreference
+        New-Directory -Path $inventoryDirectory
     }
 
     if ($PSCmdlet.ShouldProcess($inventoryPath, 'Write font inventory')) {

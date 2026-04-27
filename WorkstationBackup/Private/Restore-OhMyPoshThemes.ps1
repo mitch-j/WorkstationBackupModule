@@ -1,4 +1,4 @@
-function Restore-OhMyPoshThemes {
+function Restore-OhMyPoshTheme {
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(Mandatory)]
@@ -23,9 +23,15 @@ function Restore-OhMyPoshThemes {
         return
     }
 
-    Ensure-Directory -Path $target
+    if ($PSCmdlet.ShouldProcess($target, 'Create directory')) {
+        New-Directory -Path $target
+    }
+    
     Get-ChildItem -LiteralPath $backup -Filter '*.omp.json' -File -ErrorAction SilentlyContinue |
         ForEach-Object {
-            Copy-IfDifferent -Source $_.FullName -Destination (Join-Path $target $_.Name)
+            $destination = Join-Path $target $_.Name
+            if ($PSCmdlet.ShouldProcess($destination, 'Copy oh-my-posh theme file')) {
+                Copy-IfDifferent -Source $_.FullName -Destination $destination
+            }
         }
 }

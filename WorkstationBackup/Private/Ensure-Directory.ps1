@@ -1,4 +1,5 @@
-function Ensure-Directory {
+function New-Directory {
+    [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(Mandatory)]
         [string]$Path

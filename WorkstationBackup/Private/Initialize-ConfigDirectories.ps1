@@ -1,4 +1,4 @@
-function Initialize-ConfigDirectories {
+function Initialize-ConfigDirectory {
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(Mandatory)]
@@ -16,6 +16,8 @@ function Initialize-ConfigDirectories {
         $Config.FontsDirectory,
         $Config.LogDirectory
     )) {
-        Ensure-Directory -Path $path
+        if ($PSCmdlet.ShouldProcess($path, 'Create config directory')) {
+            New-Directory -Path $path
+        }
     }
 }
