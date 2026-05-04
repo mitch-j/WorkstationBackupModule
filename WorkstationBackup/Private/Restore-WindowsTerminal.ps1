@@ -18,5 +18,7 @@ function Restore-WindowsTerminal {
         return
     }
 
-    Copy-IfDifferent -Source $backup -Destination $target
+    if ($PSCmdlet.ShouldProcess($target, 'Restore Windows Terminal settings')) {
+        Copy-IfDifferent -Source $backup -Destination $target
+    }
 }

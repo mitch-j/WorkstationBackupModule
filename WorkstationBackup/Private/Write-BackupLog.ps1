@@ -1,11 +1,11 @@
 function Write-BackupLog {
-    [CmdletBinding()]
+    [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(Mandatory)]
         [string]$Message,
 
         [Parameter()]
-        [ValidateSet('INFO','WARN','ERROR')]
+        [ValidateSet('INFO', 'WARN', 'ERROR')]
         [string]$Level = 'INFO',
 
         [Parameter()]
@@ -14,7 +14,7 @@ function Write-BackupLog {
 
     $timestamp = Get-Date -Format 'yyyy-MM-dd HH:mm:ss'
     $line = '[{0}] [{1}] {2}' -f $timestamp, $Level, $Message
-    Write-Host $line
+    Write-Output $line
 
     if ($LogDirectory) {
         if (-not (Test-Path -LiteralPath $LogDirectory)) {

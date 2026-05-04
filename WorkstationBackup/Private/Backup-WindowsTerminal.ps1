@@ -18,17 +18,19 @@ function Backup-WindowsTerminal {
         return
     }
 
-    Copy-IfDifferent -Source $source -Destination $backup
+    if ($PSCmdlet.ShouldProcess($backup, 'Backup Windows Terminal settings')) {
+        Copy-IfDifferent -Source $source -Destination $backup
+    }
 
     try {
         $json = Get-Content -LiteralPath $source -Raw -Encoding UTF8 | ConvertFrom-Json -Depth 50
         $profiles = @()
         if ($json.profiles -and $json.profiles.list) {
-            foreach ($profile in @($json.profiles.list)) {
+            foreach ($profileEntry in @($json.profiles.list)) {
                 $profiles += [pscustomobject]@{
-                    Name     = $profile.name
-                    FontFace = $profile.font.face
-                    FontSize = $profile.font.size
+                    Name     = $profileEntry.name
+                    FontFace = $profileEntry.font.face
+                    FontSize = $profileEntry.font.size
                 }
             }
         }
