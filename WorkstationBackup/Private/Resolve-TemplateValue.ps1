@@ -17,7 +17,7 @@ function Resolve-TemplateValue {
         $expanded = $ExecutionContext.InvokeCommand.ExpandString($expanded)
     }
     catch {
-        # Leave value unchanged when expansion fails.
+        Write-BackupLog -Level WARN -Message "Template expansion failed for value: $Value"
     }
 
     $expanded = [Environment]::ExpandEnvironmentVariables($expanded)

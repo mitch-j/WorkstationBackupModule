@@ -41,10 +41,7 @@ param(
     [string]$ScheduledTime = '09:00',
 
     [Parameter()]
-    [bool]$SkipGitDuringApply = $true,
-
-    [Parameter()]
-    [switch]$ForcePull
+    [bool]$SkipGitDuringApply = $true
 )
 
 Set-StrictMode -Version Latest

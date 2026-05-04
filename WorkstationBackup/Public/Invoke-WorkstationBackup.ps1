@@ -50,6 +50,10 @@ function Invoke-WorkstationBackup {
             SkipGit  = $true
         }
         if ($ConfigPath) { $exportParameters.ConfigPath = $ConfigPath }
+        if ($InternalModulesSourceRoot) { $exportParameters.InternalModulesSourceRoot = $InternalModulesSourceRoot }
+        if ($InternalModulesBackupRoot) { $exportParameters.InternalModulesBackupRoot = $InternalModulesBackupRoot }
+        if ($ExcludeInternalModules.Count -gt 0) { $exportParameters.ExcludeInternalModules = $ExcludeInternalModules }
+        if ($WriteInternalModuleManifest) { $exportParameters.WriteInternalModuleManifest = $true }
         if ($WhatIfPreference) { $exportParameters.WhatIf = $true }
 
         if ($PSCmdlet.ShouldProcess("PowerShell environment", "Export to backup repository")) {
