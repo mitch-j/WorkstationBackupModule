@@ -31,11 +31,11 @@ function Invoke-ApplyPowerShellEnvironment {
 
     # Apply repo-managed state.
     if ($PSCmdlet.ShouldProcess('PowerShell profiles', 'Restore PowerShell profiles')) {
-        Restore-PowerShellProfiles -Config $Config
+        Restore-PowerShellProfile -Config $Config
     }
     
     if ($PSCmdlet.ShouldProcess('Settings files', 'Restore settings files')) {
-        Restore-SettingsFiles -Config $Config
+        Restore-SettingsFile -Config $Config
     }
     
     if ($PSCmdlet.ShouldProcess('Oh My Posh themes', 'Restore Oh My Posh themes')) {
@@ -43,7 +43,7 @@ function Invoke-ApplyPowerShellEnvironment {
     }
     
     if ($PSCmdlet.ShouldProcess('Nerd fonts', 'Restore Nerd fonts')) {
-        Restore-NerdFonts -Config $Config -SkipFontInstallFailures:$SkipFontInstallFailures
+        Restore-NerdFont -Config $Config -SkipFontInstallFailures:$SkipFontInstallFailures
     }
     
     if ($PSCmdlet.ShouldProcess('Windows Terminal settings', 'Restore Windows Terminal settings')) {

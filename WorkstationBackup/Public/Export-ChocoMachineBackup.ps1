@@ -36,7 +36,7 @@ function Export-ChocoMachineBackup {
     }
 
     $hostConfigDirectory = Join-Path $ConfigRoot $HostName.Trim()
-    $outputFileName = New-BackupFileName -Prefix 'choco-manifest' -HostName $HostName -Extension '.config'
+    $outputFileName = Get-BackupFileName -Prefix 'choco-manifest' -HostName $HostName -Extension '.config'
     $outputFilePath = Join-Path $hostConfigDirectory $outputFileName
 
     foreach ($path in @($ConfigRoot, $hostConfigDirectory)) {
@@ -65,7 +65,7 @@ function Export-ChocoMachineBackup {
             throw 'Chocolatey export failed.'
         }
 
-        Remove-OldBackups -Directory $hostConfigDirectory -Filter ("choco-manifest-{0}-*.config" -f $HostName.Trim()) -RetentionCount $RetentionCount -Description 'old Chocolatey machine manifest'
+        Remove-OldBackup -Directory $hostConfigDirectory -Filter ("choco-manifest-{0}-*.config" -f $HostName.Trim()) -RetentionCount $RetentionCount -Description 'old Chocolatey machine manifest'
     }
 
     Write-BackupLog "Chocolatey export completed successfully: $outputFilePath"

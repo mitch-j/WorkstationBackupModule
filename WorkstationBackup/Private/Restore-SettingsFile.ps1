@@ -1,4 +1,4 @@
-function Restore-SettingsFiles {
+function Restore-SettingsFile {
     [CmdletBinding(SupportsShouldProcess)]
     param(
         [Parameter(Mandatory)]
@@ -11,6 +11,8 @@ function Restore-SettingsFiles {
             Write-BackupLog -Level WARN -Message "Settings backup not found, skipping restore: $($item.Destination)"
             continue
         }
-        Copy-IfDifferent -Source $item.Destination -Destination $item.Source
+        if ($PSCmdlet.ShouldProcess($item.Source, 'Restore settings file')) {
+            Copy-IfDifferent -Source $item.Destination -Destination $item.Source
+        }
     }
 }

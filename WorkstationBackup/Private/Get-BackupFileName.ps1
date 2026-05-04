@@ -1,4 +1,4 @@
-function New-BackupFileName {
+function Get-BackupFileName {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]

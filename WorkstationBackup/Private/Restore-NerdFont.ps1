@@ -1,4 +1,4 @@
-function Restore-NerdFonts {
+function Restore-NerdFont {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
         [Parameter(Mandatory)]
@@ -62,7 +62,9 @@ function Restore-NerdFonts {
         }
 
         try {
-            Install-NerdFontPackage -Config $Config -FontName $fontName -WhatIf:$WhatIfPreference
+            if ($PSCmdlet.ShouldProcess($fontName, 'Install Nerd Font package')) {
+                Install-NerdFontPackage -Config $Config -FontName $fontName -WhatIf:$WhatIfPreference
+            }
         }
         catch {
             if ($SkipFontInstallFailures) {
