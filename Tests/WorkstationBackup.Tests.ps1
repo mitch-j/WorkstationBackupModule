@@ -144,7 +144,7 @@ Describe 'Export-NerdFont' {
     }
 }
 
-Describe 'Restore-NerdFonts' {
+Describe 'Restore-NerdFont' {
     It 'Should be available in module' {
         $module = Get-Module WorkstationBackup
         $module | Should -Not -BeNullOrEmpty
