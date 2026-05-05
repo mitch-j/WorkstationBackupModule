@@ -7,12 +7,15 @@ function Backup-PowerShellProfile {
 
     foreach ($item in @($Config.Profiles)) {
         if (-not $item.Source -or -not $item.Destination) { continue }
-        if (-not (Test-Path -LiteralPath $item.Source)) {
-            Write-BackupLog -Level WARN -Message "Profile source not found, skipping: $($item.Source)"
+        
+        $resolvedSource = Resolve-BackupPath -Path $item.Source
+        
+        if (-not (Test-Path -LiteralPath $resolvedSource)) {
+            Write-BackupLog -Level WARN -Message "Profile source not found, skipping: $resolvedSource"
             continue
         }
         if ($PSCmdlet.ShouldProcess($item.Destination, 'Copy PowerShell profile')) {
-            Copy-IfDifferent -Source $item.Source -Destination $item.Destination
+            Copy-IfDifferent -Source $resolvedSource -Destination $item.Destination
         }
     }
 }
