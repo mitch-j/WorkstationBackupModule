@@ -66,8 +66,7 @@
 
 .NOTES
     - This command is the preferred entrypoint for full workstation backup workflows.
-    - `Export-PowerShellEnvironment` is always run with `SkipGit = $true` because Git sync
-      is handled by this wrapper.
+    - `Export-PowerShellEnvironment` does not perform Git synchronization itself; Git sync is handled by this wrapper.
     - If no backup stages are selected, the command logs a warning and exits.
 
 .INPUTS
@@ -134,7 +133,6 @@ function Invoke-WorkstationBackup {
     if (-not $SkipPowerShellBackup) {
         $exportParameters = @{
             RepoRoot = $RepoRoot
-            SkipGit  = $true
         }
         if ($ConfigPath) { $exportParameters.ConfigPath = $ConfigPath }
         if ($InternalModulesSourceRoot) { $exportParameters.InternalModulesSourceRoot = $InternalModulesSourceRoot }
