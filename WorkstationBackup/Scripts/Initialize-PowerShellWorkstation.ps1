@@ -82,7 +82,7 @@ if (-not $SkipClone) {
 
 if ($InstallPackages) {
     Write-BackupLog ('Installing baseline packages: ' + ($ChocolateyPackages -join ', '))
-    
+
     foreach ($package in $ChocolateyPackages) {
         if ($PSCmdlet.ShouldProcess($package, 'Install Chocolatey package')) {
             & choco install $package -y
