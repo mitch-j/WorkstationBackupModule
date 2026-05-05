@@ -1,3 +1,52 @@
+<#
+.SYNOPSIS
+    Exports Chocolatey package metadata to the backup repository.
+
+.DESCRIPTION
+    Uses Chocolatey's export feature to write a machine-specific manifest into the
+    backup repository config directory. This manifest can be persisted in Git and
+    restored or reenforced on another workstation.
+
+.PARAMETER RepoRoot
+    Root directory of the backup repository. Defaults to the repo root resolved from
+    the module location.
+
+.PARAMETER ConfigRoot
+    Optional alternate root for the backup configuration files. Defaults to
+    $RepoRoot\Config.
+
+.PARAMETER HostName
+    Host name used to name the machine-specific backup directory and manifest file.
+
+.PARAMETER RetentionCount
+    Number of previous Chocolatey manifests to retain. Older manifests are deleted.
+
+.PARAMETER IncludeVersions
+    Include package version numbers in the exported Chocolatey manifest.
+
+.PARAMETER AllowOverwriteToday
+    Allow overwriting today's manifest file if it already exists.
+
+.EXAMPLE
+    Export-ChocoMachineBackup
+
+    Exports Chocolatey state to the default backup repo config directory.
+
+.EXAMPLE
+    Export-ChocoMachineBackup -RepoRoot 'C:\Dev\work\backup-repo' -IncludeVersions
+
+    Exports with package versions included to a specific backup repository.
+
+.NOTES
+    - Requires Chocolatey installed and available in PATH.
+    - This command is safe with ShouldProcess and WhatIf support.
+
+.INPUTS
+    None.
+
+.OUTPUTS
+    PSCustomObject
+#>
 function Export-ChocoMachineBackup {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(

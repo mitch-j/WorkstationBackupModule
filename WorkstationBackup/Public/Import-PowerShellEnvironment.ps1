@@ -13,7 +13,8 @@
 
 .PARAMETER ConfigPath
     Path to the powershell-sync.config.json configuration file. If not provided,
-    defaults to $RepoRoot/powershell-sync.config.json.
+    defaults to $RepoRoot/powershell-sync.config.json. This file is the primary
+    source of restore path configuration and is required for the import operation.
 
 .PARAMETER SkipFontInstallFailures
     If specified, continues restoration even if Nerd Font installation fails.

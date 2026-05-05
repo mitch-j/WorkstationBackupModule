@@ -1,3 +1,52 @@
+<#
+.SYNOPSIS
+    Creates or updates the powershell-sync.config.json configuration file for a backup repository.
+
+.DESCRIPTION
+    Generates the JSON configuration file that defines backup paths, profile mappings,
+    theme and terminal settings, font restore targets, and module directories.
+    This command is the recommended first step when setting up a new backup repo or
+    onboarding a new workstation.
+
+.PARAMETER RepoRoot
+    The root directory of the backup repository. If omitted, the module root is used as
+    a starting point and the user is prompted to confirm the location.
+
+.PARAMETER ConfigPath
+    The path to write the configuration file. Defaults to '$RepoRoot\powershell-sync.config.json'.
+
+.PARAMETER Force
+    Overwrite an existing configuration file.
+
+.PARAMETER UseDefaults
+    Generate the config file without prompting for values.
+
+.EXAMPLE
+    New-PowerShellSyncConfig
+
+    Generates a new config file in the current repository root.
+
+.EXAMPLE
+    New-PowerShellSyncConfig -RepoRoot 'C:\Dev\work\backup-repo'
+
+    Creates the config file in a separate backup repository.
+
+.EXAMPLE
+    New-PowerShellSyncConfig -ConfigPath 'C:\Dev\work\backup-repo\powershell-sync.config.json' -Force
+
+    Writes the config file to a custom location and overwrites any existing file.
+
+.NOTES
+    - Keep the config file under version control in your backup repository.
+    - The generated config file uses template expansion for environment variables and profile paths.
+    - Use this command before running Export-PowerShellEnvironment or Import-PowerShellEnvironment.
+
+.INPUTS
+    None.
+
+.OUTPUTS
+    PSCustomObject
+#>
 function New-PowerShellSyncConfig {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(

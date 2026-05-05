@@ -1,3 +1,47 @@
+<#
+.SYNOPSIS
+    Packages internal PowerShell modules into archive files for backup.
+
+.DESCRIPTION
+    Compresses each folder in the internal module source root into a ZIP archive
+    and writes the results into the specified destination root. Optionally writes
+    a manifest describing the archived modules.
+
+.PARAMETER SourceRoot
+    Directory containing the internal modules to back up.
+
+.PARAMETER DestinationRoot
+    Directory where module archives will be written.
+
+.PARAMETER IncludeModules
+    Specific module names to include in the backup. If empty, all modules are included.
+
+.PARAMETER ExcludeModules
+    Specific module names to exclude from the backup.
+
+.PARAMETER WriteManifest
+    Write a JSON manifest file listing archived internal modules.
+
+.EXAMPLE
+    Export-InternalModuleBackup -SourceRoot 'C:\Modules\Internal' -DestinationRoot 'C:\Backup\Modules'
+
+    Archives all internal modules into the backup repository.
+
+.EXAMPLE
+    Export-InternalModuleBackup -SourceRoot 'C:\Modules\Internal' -DestinationRoot 'C:\Backup\Modules' -ExcludeModules @('TempModule') -WriteManifest
+
+    Archives internal modules while excluding a specific module and writes a manifest.
+
+.NOTES
+    - This command uses Compress-Archive and requires Windows PowerShell compression support.
+    - If an archive already exists, it is replaced when the command runs.
+
+.INPUTS
+    None.
+
+.OUTPUTS
+    System.Object[]
+#>
 function Export-InternalModuleBackup {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(
@@ -72,8 +116,8 @@ function Export-InternalModuleBackup {
 
         if ($PSCmdlet.ShouldProcess($manifestPath, 'Write internal modules manifest')) {
             $manifestEntries |
-                ConvertTo-Json -Depth 4 |
-                Set-Content -LiteralPath $manifestPath -Encoding utf8
+            ConvertTo-Json -Depth 4 |
+            Set-Content -LiteralPath $manifestPath -Encoding utf8
         }
 
         Write-BackupLog -Message "Wrote internal module manifest to '$manifestPath'"

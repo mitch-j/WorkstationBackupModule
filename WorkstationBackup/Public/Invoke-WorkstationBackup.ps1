@@ -1,3 +1,81 @@
+<#
+.SYNOPSIS
+    Orchestrates a full workstation backup with optional Git synchronization.
+
+.DESCRIPTION
+    Runs PowerShell environment export, Chocolatey export, and optional Git sync in a
+    single command. The command uses the JSON configuration file as the primary source
+    of path and repository information when `-ConfigPath` is supplied.
+
+.PARAMETER RepoRoot
+    The root directory of the backup repository. If omitted, it is resolved from the
+    module root or the configuration file when `-ConfigPath` is provided.
+
+.PARAMETER ConfigPath
+    Path to the powershell-sync.config.json file. When supplied without `-RepoRoot`, the
+    repository root is derived from the configuration file.
+
+.PARAMETER SkipPowerShellBackup
+    Skip the PowerShell environment export stage.
+
+.PARAMETER SkipChocoBackup
+    Skip the Chocolatey package export stage.
+
+.PARAMETER SkipGit
+    Skip Git commit/push/pull synchronization.
+
+.PARAMETER SkipPull
+    Skip git pull before pushing changes.
+
+.PARAMETER SkipPush
+    Skip git push after committing changes.
+
+.PARAMETER CommitMessage
+    Custom commit message for the Git sync stage.
+
+.PARAMETER ChocoBackupArguments
+    Additional Chocolatey export arguments. Supported values are:
+    `-IncludeVersions`, `-AllowOverwriteToday`, and `-RetentionCount <n>`.
+
+.PARAMETER InternalModulesSourceRoot
+    Source directory for custom internal PowerShell modules.
+
+.PARAMETER InternalModulesBackupRoot
+    Destination directory inside the backup repo for internal modules.
+
+.PARAMETER ExcludeInternalModules
+    List of module names to exclude from internal module backup.
+
+.PARAMETER WriteInternalModuleManifest
+    If specified, writes a manifest JSON file listing backed up internal modules.
+
+.EXAMPLE
+    Invoke-WorkstationBackup
+
+    Runs all backup stages and synchronizes changes to Git using the default repo root.
+
+.EXAMPLE
+    Invoke-WorkstationBackup -ConfigPath 'C:\Dev\work\backup-repo\powershell-sync.config.json'
+
+    Uses an external config file and backup repository.
+
+.EXAMPLE
+    Invoke-WorkstationBackup -SkipChocoBackup -WhatIf
+
+    Previews a PowerShell-only backup without Chocolatey export.
+
+.NOTES
+    - This command is the preferred entrypoint for full workstation backup workflows.
+    - `Export-PowerShellEnvironment` is always run with `SkipGit = $true` because Git sync
+      is handled by this wrapper.
+    - If no backup stages are selected, the command logs a warning and exits.
+
+.INPUTS
+    None.
+
+.OUTPUTS
+    PSCustomObject
+#>
 function Invoke-WorkstationBackup {
     [CmdletBinding(SupportsShouldProcess = $true)]
     param(

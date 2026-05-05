@@ -107,6 +107,10 @@ Invoke-WorkstationBackup
 
 ### `powershell-sync.config.json` Schema
 
+The config file is the primary source of truth for backup and restore operations. Most public functions will look for this file at `$RepoRoot\powershell-sync.config.json`, unless you explicitly pass `-ConfigPath`.
+
+If you keep your backups in a separate repository, place `powershell-sync.config.json` at the root of that repo and use `New-PowerShellSyncConfig` to generate it.
+
 | Property              | Type   | Description                                             |
 | :-------------------- | :----- | :------------------------------------------------------ |
 | `RepoRoot`            | string | Root directory for backups (supports `$env:` variables) |
@@ -186,6 +190,7 @@ Import-PowerShellEnvironment
 
 ### Export Functions
 
+- **`New-PowerShellSyncConfig`** - Generate the initial `powershell-sync.config.json` for a backup repository
 - **`Export-PowerShellEnvironment`** - Export PowerShell profiles, settings, themes, and modules
 - **`Export-ChocoMachineBackup`** - Export Chocolatey packages
 - **`Export-InternalModuleBackup`** - Export custom PowerShell modules
@@ -224,7 +229,6 @@ WorkstationBackup/
 │   ├── Import-*.ps1
 │   └── Invoke-*.ps1
 ├── Scripts/
-│   ├── Legacy/          # Original scripts for reference
 │   └── *.ps1            # CLI wrappers
 ├── WorkstationBackup.psd1   # Module manifest
 └── WorkstationBackup.psm1   # Module loader
@@ -242,7 +246,7 @@ This module has **completed migration** from a legacy script-based approach:
 - ✅ PowerShell Gallery modules support
 - ✅ Nerd Fonts backup/restore support
 - ✅ Machine state metadata
-- ✅ Backward compatibility via legacy script fallback
+- ✅ Migration complete with module-based workflow
 
 ### Migration Complete
 
@@ -252,9 +256,9 @@ The migration from `Sync-PowerShellEnvironment.ps1` to modular functions is now 
 - **Import Functions**: Full restoration with dependency management
 - **Configuration**: JSON-driven with template expansion
 - **Error Handling**: Comprehensive logging and WhatIf support
-- **Legacy Fallback**: `-UseLegacyScript` parameter for compatibility
+- **Legacy compatibility removed**: The new module workflow is the recommended path.
 
-The legacy script remains available for reference but is no longer required for normal operation.
+The legacy script is no longer required for normal operation.
 
 ## Git Integration
 
@@ -300,12 +304,14 @@ New-Item -Path $PROFILE.CurrentUserCurrentHost -Force  # Create if missing
 
 **Issue**: "Config file not found"
 
-**Solution**: Ensure `powershell-sync.config.json` is in the module root or repository root:
+**Solution**: Ensure `powershell-sync.config.json` exists in the backup repository root, or pass `-ConfigPath` directly to the public commands.
 
 ```powershell
-$RepoRoot = Get-WorkstationBackupRoot
-Get-ChildItem $RepoRoot -Filter "*.json"
+New-PowerShellSyncConfig -RepoRoot 'C:\Dev\work\backup-repo'
+Get-ChildItem 'C:\Dev\work\backup-repo' -Filter 'powershell-sync.config.json'
 ```
+
+If the config file is stored in a separate repo, always use `-ConfigPath` when importing or invoking backups from a different working directory.
 
 ### Modules Not Exporting
 
@@ -398,5 +404,7 @@ For issues, questions, or feature requests:
 
 - [MIGRATION.md](MIGRATION.md) - Detailed migration information
 - [Tests/](Tests/) - Test suite
+- `Get-Help New-PowerShellSyncConfig` - Built-in help
 - `Get-Help Export-PowerShellEnvironment` - Built-in help
 - `Get-Help Import-PowerShellEnvironment` - Built-in help
+- `Get-Help Invoke-WorkstationBackup` - Built-in help

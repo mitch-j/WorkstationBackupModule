@@ -1,3 +1,60 @@
+<#
+.SYNOPSIS
+    Bootstraps a new Windows workstation by cloning a repo, installing packages, and applying configuration.
+
+.DESCRIPTION
+    This script is a wrapper for initial workstation setup. It can clone or update a repository,
+    install baseline Chocolatey packages, optionally apply PowerShell environment configuration,
+    and register a scheduled backup task.
+
+.PARAMETER RepoUrl
+    The Git repository URL to clone for workstation configuration.
+
+.PARAMETER RepoRoot
+    Local path where the repository will be cloned or updated.
+
+.PARAMETER ConfigPath
+    Optional path to the powershell-sync.config.json file to use during configuration application.
+
+.PARAMETER InstallPackages
+    If true, installs the baseline Chocolatey packages.
+
+.PARAMETER ChocolateyPackages
+    List of Chocolatey package names to install.
+
+.PARAMETER SkipClone
+    If specified, skip repository cloning or update.
+
+.PARAMETER ApplyConfig
+    If specified, apply configuration after cloning/updating the repo.
+
+.PARAMETER RegisterScheduledTask
+    If specified, register a workstation backup scheduled task after configuration.
+
+.PARAMETER ScheduledDayOfMonth
+    Day of month for the scheduled task.
+
+.PARAMETER ScheduledTime
+    Time of day for the scheduled task, in HH:mm format.
+
+.PARAMETER SkipGitDuringApply
+    If true, skip Git sync while applying configuration.
+
+.EXAMPLE
+    .\Initialize-PowerShellWorkstation.ps1 -RepoUrl 'https://github.com/me/backup-repo.git' -RepoRoot 'C:\Dev\work\backup-repo'
+
+    Clones the backup repository and applies the configuration.
+
+.NOTES
+    - This script is intentionally a wrapper and may be migrated into module functions later.
+    - Use `-WhatIf` to preview the operations if running from PowerShell.
+
+.INPUTS
+    None.
+
+.OUTPUTS
+    None.
+#>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
     [Parameter(Mandatory)]
