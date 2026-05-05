@@ -33,9 +33,14 @@
 .PARAMETER CommitMessage
     Custom commit message for the Git sync stage.
 
-.PARAMETER ChocoBackupArguments
-    Additional Chocolatey export arguments. Supported values are:
-    `-IncludeVersions`, `-AllowOverwriteToday`, and `-RetentionCount <n>`.
+.PARAMETER AllowOverwriteToday
+    Allow Chocolatey export to overwrite today's manifest if it already exists.
+
+.PARAMETER IncludeVersions
+    Include package version information in the Chocolatey export manifest.
+
+.PARAMETER RetentionCount
+    Number of Chocolatey export manifests to retain. Older exports are automatically removed.
 
 .PARAMETER InternalModulesSourceRoot
     Source directory for custom internal PowerShell modules.
@@ -103,7 +108,13 @@ function Invoke-WorkstationBackup {
         [string]$CommitMessage,
 
         [Parameter()]
-        [string[]]$ChocoBackupArguments = @(),
+        [switch]$AllowOverwriteToday,
+
+        [Parameter()]
+        [switch]$IncludeVersions,
+
+        [Parameter()]
+        [int]$RetentionCount = 0,
 
         [Parameter()]
         [string]$InternalModulesSourceRoot,
@@ -152,24 +163,9 @@ function Invoke-WorkstationBackup {
             RepoRoot = $RepoRoot
         }
 
-        for ($i = 0; $i -lt $ChocoBackupArguments.Count; $i++) {
-            $argument = $ChocoBackupArguments[$i]
-            switch -Regex ($argument) {
-                '^-IncludeVersions$' { $chocoParameters.IncludeVersions = $true; continue }
-                '^-AllowOverwriteToday$' { $chocoParameters.AllowOverwriteToday = $true; continue }
-                '^-RetentionCount$' {
-                    if ($i + 1 -ge $ChocoBackupArguments.Count) {
-                        throw 'ChocoBackupArguments included -RetentionCount without a value.'
-                    }
-                    $i++
-                    $chocoParameters.RetentionCount = [int]$ChocoBackupArguments[$i]
-                    continue
-                }
-                default {
-                    throw "Unsupported ChocoBackupArguments value '$argument' in the module refactor. Add explicit parameter support here instead of passing through arbitrary strings."
-                }
-            }
-        }
+        if ($AllowOverwriteToday) { $chocoParameters.AllowOverwriteToday = $true }
+        if ($IncludeVersions) { $chocoParameters.IncludeVersions = $true }
+        if ($RetentionCount -gt 0) { $chocoParameters.RetentionCount = $RetentionCount }
 
         if ($WhatIfPreference) { $chocoParameters.WhatIf = $true }
         if ($PSCmdlet.ShouldProcess("Chocolatey packages", "Export to backup repository")) {
