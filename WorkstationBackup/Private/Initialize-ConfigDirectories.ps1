@@ -9,9 +9,7 @@ function Initialize-ConfigDirectory {
         $Config.RepoRoot,
         $Config.PersonalModulesPath,
         $Config.ExternalModulesPath,
-        $Config.InventoryDirectory,
         $Config.ProfilesDirectory,
-        $Config.SettingsDirectory,
         $Config.ThemesDirectory,
         $Config.FontsDirectory,
         $Config.LogDirectory

@@ -5,7 +5,10 @@ function Resolve-TemplateValue {
         [string]$Value,
 
         [Parameter()]
-        [string]$RelativeRoot
+        [string]$RelativeRoot,
+
+        [Parameter()]
+        [string]$ComputerName = $env:COMPUTERNAME
     )
 
     if ([string]::IsNullOrWhiteSpace($Value)) {
@@ -13,6 +16,12 @@ function Resolve-TemplateValue {
     }
 
     $expanded = $Value
+    
+    # Replace {ComputerName} placeholder
+    if ($expanded.Contains('{ComputerName}')) {
+        $expanded = $expanded.Replace('{ComputerName}', $ComputerName)
+    }
+    
     try {
         $expanded = $ExecutionContext.InvokeCommand.ExpandString($expanded)
     }

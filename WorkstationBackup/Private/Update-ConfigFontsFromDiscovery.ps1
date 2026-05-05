@@ -36,7 +36,7 @@ function Update-ConfigFontsFromDiscovery {
     $raw.Fonts.RequiredFonts = @($DiscoveredFonts | Sort-Object -Unique)
 
     if (-not $raw.Fonts.PSObject.Properties.Name.Contains('InventoryPath') -or [string]::IsNullOrWhiteSpace($raw.Fonts.InventoryPath)) {
-        $raw.Fonts | Add-Member -NotePropertyName InventoryPath -NotePropertyValue 'Inventory\\fonts.json' -Force
+        $raw.Fonts | Add-Member -NotePropertyName InventoryPath -NotePropertyValue 'Config\{ComputerName}\fonts.json' -Force
     }
 
     Write-BackupLog -Message "Updating config font list at $configPath"

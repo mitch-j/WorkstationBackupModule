@@ -11,7 +11,11 @@ function Read-PowerShellSyncConfig {
     $raw = Get-Content -LiteralPath $Path -Raw -Encoding UTF8
     $cfg = $raw | ConvertFrom-Json -Depth 50
     
-
+    $computerName = if ([string]::IsNullOrWhiteSpace($cfg.ComputerName)) {
+        [System.Environment]::MachineName
+    } else {
+        $cfg.ComputerName
+    }
 
     foreach ($required in 'RepoRoot', 'PersonalModulesPath', 'ExternalModulesPath', 'InventoryDirectory', 'ProfilesDirectory', 'SettingsDirectory', 'ThemesDirectory', 'FontsDirectory', 'LogDirectory', 'PersonalModules') {
         if (-not $cfg.PSObject.Properties.Name.Contains($required)) {
@@ -19,20 +23,20 @@ function Read-PowerShellSyncConfig {
         }
     }
 
-    $repoRoot = Resolve-TemplateValue -Value $cfg.RepoRoot
+    $repoRoot = Resolve-TemplateValue -Value $cfg.RepoRoot -ComputerName $computerName
     if (-not [System.IO.Path]::IsPathRooted($repoRoot)) {
         throw "RepoRoot must resolve to an absolute path. Current value: $($cfg.RepoRoot)"
     }
 
     $cfg.RepoRoot = $repoRoot
-    $cfg.PersonalModulesPath = Resolve-TemplateValue -Value $cfg.PersonalModulesPath -RelativeRoot $cfg.RepoRoot
-    $cfg.ExternalModulesPath = Resolve-TemplateValue -Value $cfg.ExternalModulesPath -RelativeRoot $cfg.RepoRoot
-    $cfg.InventoryDirectory = Resolve-TemplateValue -Value $cfg.InventoryDirectory -RelativeRoot $cfg.RepoRoot
-    $cfg.ProfilesDirectory = Resolve-TemplateValue -Value $cfg.ProfilesDirectory -RelativeRoot $cfg.RepoRoot
-    $cfg.SettingsDirectory = Resolve-TemplateValue -Value $cfg.SettingsDirectory -RelativeRoot $cfg.RepoRoot
-    $cfg.ThemesDirectory = Resolve-TemplateValue -Value $cfg.ThemesDirectory -RelativeRoot $cfg.RepoRoot
-    $cfg.FontsDirectory = Resolve-TemplateValue -Value $cfg.FontsDirectory -RelativeRoot $cfg.RepoRoot
-    $cfg.LogDirectory = Resolve-TemplateValue -Value $cfg.LogDirectory -RelativeRoot $cfg.RepoRoot
+    $cfg.PersonalModulesPath = Resolve-TemplateValue -Value $cfg.PersonalModulesPath -RelativeRoot $cfg.RepoRoot -ComputerName $computerName
+    $cfg.ExternalModulesPath = Resolve-TemplateValue -Value $cfg.ExternalModulesPath -RelativeRoot $cfg.RepoRoot -ComputerName $computerName
+    $cfg.InventoryDirectory = Resolve-TemplateValue -Value $cfg.InventoryDirectory -RelativeRoot $cfg.RepoRoot -ComputerName $computerName
+    $cfg.ProfilesDirectory = Resolve-TemplateValue -Value $cfg.ProfilesDirectory -RelativeRoot $cfg.RepoRoot -ComputerName $computerName
+    $cfg.SettingsDirectory = Resolve-TemplateValue -Value $cfg.SettingsDirectory -RelativeRoot $cfg.RepoRoot -ComputerName $computerName
+    $cfg.ThemesDirectory = Resolve-TemplateValue -Value $cfg.ThemesDirectory -RelativeRoot $cfg.RepoRoot -ComputerName $computerName
+    $cfg.FontsDirectory = Resolve-TemplateValue -Value $cfg.FontsDirectory -RelativeRoot $cfg.RepoRoot -ComputerName $computerName
+    $cfg.LogDirectory = Resolve-TemplateValue -Value $cfg.LogDirectory -RelativeRoot $cfg.RepoRoot -ComputerName $computerName
 
     if (-not $cfg.PSObject.Properties.Name.Contains('ConfigPath')) {
         $cfg | Add-Member -NotePropertyName ConfigPath -NotePropertyValue $Path
@@ -58,8 +62,8 @@ function Read-PowerShellSyncConfig {
                 BackupEnabled     = $true
                 BackupAllThemes   = $true
                 ThemeSourcePath   = '$env:POSH_THEMES_PATH'
-                ThemeBackupPath   = 'Themes\\oh-my-posh'
-                RestoreTargetPath = 'Themes\\oh-my-posh'
+                ThemeBackupPath   = 'Config\{ComputerName}\Themes'
+                RestoreTargetPath = 'Config\{ComputerName}\Themes'
             })
     }
 
@@ -71,7 +75,7 @@ function Read-PowerShellSyncConfig {
                 DiscoveryEnabled        = $true
                 Scope                   = 'CurrentUser'
                 RequiredFonts           = @()
-                InventoryPath           = 'Inventory\\fonts.json'
+                InventoryPath           = 'Config\{ComputerName}\fonts.json'
                 AutoDetectFromInstalled = $true
                 Files                   = @()
                 RestoreDirectory        = '$env:LOCALAPPDATA\\Microsoft\\Windows\\Fonts'
@@ -94,7 +98,7 @@ function Read-PowerShellSyncConfig {
         $cfg.Fonts | Add-Member -NotePropertyName RequiredFonts -NotePropertyValue @()
     }
     if (-not $cfg.Fonts.PSObject.Properties.Name.Contains('InventoryPath')) {
-        $cfg.Fonts | Add-Member -NotePropertyName InventoryPath -NotePropertyValue 'Inventory\\fonts.json'
+        $cfg.Fonts | Add-Member -NotePropertyName InventoryPath -NotePropertyValue 'Config\{ComputerName}\fonts.json'
     }
     if (-not $cfg.Fonts.PSObject.Properties.Name.Contains('AutoDetectFromInstalled')) {
         $cfg.Fonts | Add-Member -NotePropertyName AutoDetectFromInstalled -NotePropertyValue $true
@@ -113,43 +117,43 @@ function Read-PowerShellSyncConfig {
         $cfg | Add-Member -NotePropertyName WindowsTerminal -NotePropertyValue ([pscustomobject]@{
                 BackupEnabled      = $true
                 SettingsSourcePath = '$env:LOCALAPPDATA\\Packages\\Microsoft.WindowsTerminal_8wekyb3d8bbwe\\LocalState\\settings.json'
-                SettingsBackupPath = 'Settings\\windows-terminal\\settings.json'
+                SettingsBackupPath = 'Config\{ComputerName}\settings.json'
                 RestoreTargetPath  = '$env:LOCALAPPDATA\\Packages\\Microsoft.WindowsTerminal_8wekyb3d8bbwe\\LocalState\\settings.json'
             })
     }
 
     foreach ($item in @($cfg.Profiles)) {
         if ($null -eq $item) { continue }
-        $item.Source = Resolve-TemplateValue -Value $item.Source
-        $item.Destination = Resolve-TemplateValue -Value $item.Destination -RelativeRoot $cfg.ProfilesDirectory
+        $item.Source = Resolve-TemplateValue -Value $item.Source -ComputerName $computerName
+        $item.Destination = Resolve-TemplateValue -Value $item.Destination -RelativeRoot $cfg.ProfilesDirectory -ComputerName $computerName
     }
 
     foreach ($item in @($cfg.SettingsFiles)) {
         if ($null -eq $item) { continue }
-        $item.Source = Resolve-TemplateValue -Value $item.Source
-        $item.Destination = Resolve-TemplateValue -Value $item.Destination -RelativeRoot $cfg.SettingsDirectory
+        $item.Source = Resolve-TemplateValue -Value $item.Source -ComputerName $computerName
+        $item.Destination = Resolve-TemplateValue -Value $item.Destination -RelativeRoot $cfg.SettingsDirectory -ComputerName $computerName
     }
 
-    $cfg.OhMyPosh.ThemeSourcePath = Resolve-TemplateValue -Value $cfg.OhMyPosh.ThemeSourcePath
-    $cfg.OhMyPosh.ThemeBackupPath = Resolve-TemplateValue -Value $cfg.OhMyPosh.ThemeBackupPath -RelativeRoot $cfg.RepoRoot
-    $cfg.OhMyPosh.RestoreTargetPath = Resolve-TemplateValue -Value $cfg.OhMyPosh.RestoreTargetPath -RelativeRoot $cfg.RepoRoot
+    $cfg.OhMyPosh.ThemeSourcePath = Resolve-TemplateValue -Value $cfg.OhMyPosh.ThemeSourcePath -ComputerName $computerName
+    $cfg.OhMyPosh.ThemeBackupPath = Resolve-TemplateValue -Value $cfg.OhMyPosh.ThemeBackupPath -RelativeRoot $cfg.RepoRoot -ComputerName $computerName
+    $cfg.OhMyPosh.RestoreTargetPath = Resolve-TemplateValue -Value $cfg.OhMyPosh.RestoreTargetPath -RelativeRoot $cfg.RepoRoot -ComputerName $computerName
 
-    $cfg.Fonts.InventoryPath = Resolve-TemplateValue -Value $cfg.Fonts.InventoryPath -RelativeRoot $cfg.RepoRoot
-    $cfg.Fonts.RestoreDirectory = Resolve-TemplateValue -Value $cfg.Fonts.RestoreDirectory
+    $cfg.Fonts.InventoryPath = Resolve-TemplateValue -Value $cfg.Fonts.InventoryPath -RelativeRoot $cfg.RepoRoot -ComputerName $computerName
+    $cfg.Fonts.RestoreDirectory = Resolve-TemplateValue -Value $cfg.Fonts.RestoreDirectory -ComputerName $computerName
 
     foreach ($item in @($cfg.Fonts.Files)) {
         if ($null -eq $item) { continue }
         if ($item.PSObject.Properties.Name.Contains('Source')) {
-            $item.Source = Resolve-TemplateValue -Value $item.Source
+            $item.Source = Resolve-TemplateValue -Value $item.Source -ComputerName $computerName
         }
         if ($item.PSObject.Properties.Name.Contains('Destination')) {
-            $item.Destination = Resolve-TemplateValue -Value $item.Destination -RelativeRoot $cfg.RepoRoot
+            $item.Destination = Resolve-TemplateValue -Value $item.Destination -RelativeRoot $cfg.RepoRoot -ComputerName $computerName
         }
     }
 
-    $cfg.WindowsTerminal.SettingsSourcePath = Resolve-TemplateValue -Value $cfg.WindowsTerminal.SettingsSourcePath
-    $cfg.WindowsTerminal.SettingsBackupPath = Resolve-TemplateValue -Value $cfg.WindowsTerminal.SettingsBackupPath -RelativeRoot $cfg.RepoRoot
-    $cfg.WindowsTerminal.RestoreTargetPath = Resolve-TemplateValue -Value $cfg.WindowsTerminal.RestoreTargetPath
+    $cfg.WindowsTerminal.SettingsSourcePath = Resolve-TemplateValue -Value $cfg.WindowsTerminal.SettingsSourcePath -ComputerName $computerName
+    $cfg.WindowsTerminal.SettingsBackupPath = Resolve-TemplateValue -Value $cfg.WindowsTerminal.SettingsBackupPath -RelativeRoot $cfg.RepoRoot -ComputerName $computerName
+    $cfg.WindowsTerminal.RestoreTargetPath = Resolve-TemplateValue -Value $cfg.WindowsTerminal.RestoreTargetPath -ComputerName $computerName
 
     return $cfg
 }

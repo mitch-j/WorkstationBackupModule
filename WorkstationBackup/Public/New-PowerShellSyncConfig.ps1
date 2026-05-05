@@ -109,13 +109,14 @@ function New-PowerShellSyncConfig {
 
     $config = [pscustomobject]@{
         RepoRoot            = $RepoRoot
+        ComputerName        = $null
         PersonalModulesPath = 'Modules\\Personal'
         ExternalModulesPath = 'Modules\\External'
-        InventoryDirectory  = 'Inventory'
-        ProfilesDirectory   = 'Profiles'
-        SettingsDirectory   = 'Settings'
-        ThemesDirectory     = 'Themes'
-        FontsDirectory      = 'Fonts'
+        InventoryDirectory  = 'Config\\{ComputerName}'
+        ProfilesDirectory   = 'Config\\{ComputerName}'
+        SettingsDirectory   = 'Config\\{ComputerName}'
+        ThemesDirectory     = 'Config\\{ComputerName}\\Themes'
+        FontsDirectory      = 'Config\\{ComputerName}\\Fonts'
         LogDirectory        = 'Logs'
         PersonalModules     = @()
         Profiles            = @(
@@ -127,8 +128,8 @@ function New-PowerShellSyncConfig {
             BackupEnabled     = $true
             BackupAllThemes   = $true
             ThemeSourcePath   = '$env:POSH_THEMES_PATH'
-            ThemeBackupPath   = 'Themes\\oh-my-posh'
-            RestoreTargetPath = 'Themes\\oh-my-posh'
+            ThemeBackupPath   = 'Config\\{ComputerName}\\Themes'
+            RestoreTargetPath = 'Config\\{ComputerName}\\Themes'
         }
         Fonts               = [pscustomobject]@{
             BackupEnabled           = $true
@@ -137,7 +138,7 @@ function New-PowerShellSyncConfig {
             DiscoveryEnabled        = $true
             Scope                   = 'CurrentUser'
             RequiredFonts           = @()
-            InventoryPath           = 'Inventory\\fonts.json'
+            InventoryPath           = 'Config\\{ComputerName}\\fonts.json'
             AutoDetectFromInstalled = $true
             Files                   = @()
             RestoreDirectory        = '$env:LOCALAPPDATA\\Microsoft\\Windows\\Fonts'
@@ -145,7 +146,7 @@ function New-PowerShellSyncConfig {
         WindowsTerminal     = [pscustomobject]@{
             BackupEnabled      = $true
             SettingsSourcePath = '$env:LOCALAPPDATA\\Packages\\Microsoft.WindowsTerminal_8wekyb3d8bbwe\\LocalState\\settings.json'
-            SettingsBackupPath = 'Settings\\windows-terminal\\settings.json'
+            SettingsBackupPath = 'Config\\{ComputerName}\\settings.json'
             RestoreTargetPath  = '$env:LOCALAPPDATA\\Packages\\Microsoft.WindowsTerminal_8wekyb3d8bbwe\\LocalState\\settings.json'
         }
     }
