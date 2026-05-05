@@ -12,7 +12,7 @@ $privateFiles = @(
     'Private\Set-BackupUserEnvironmentVariable.ps1'
     'Private\Get-WorkstationBackupRoot.ps1'
     'Private\Get-WorkstationIdentity.ps1'
-    'Private\New-BackupFileName.ps1'
+    'Private\Get-BackupFileName.ps1'
     'Private\Resolve-BackupPath.ps1'
     'Private\Remove-OldBackups.ps1'
     'Private\Test-RequiredCommand.ps1'
@@ -30,14 +30,14 @@ $privateFiles = @(
     'Private\Update-ConfigFontsFromDiscovery.ps1'
     'Private\Initialize-FontRestorePrerequisites.ps1'
     'Private\Export-NerdFonts.ps1'
-    'Private\Restore-NerdFonts.ps1'
+    'Private\Restore-NerdFont.ps1'
 
     'Private\Backup-PowerShellProfiles.ps1'
     'Private\Backup-SettingsFiles.ps1'
     'Private\Backup-OhMyPoshThemes.ps1'
     'Private\Backup-WindowsTerminal.ps1'
-    'Private\Restore-PowerShellProfiles.ps1'
-    'Private\Restore-SettingsFiles.ps1'
+    'Private\Restore-PowerShellProfile.ps1'
+    'Private\Restore-SettingsFile.ps1'
     'Private\Restore-OhMyPoshThemes.ps1'
     'Private\Restore-WindowsTerminal.ps1'
 
@@ -73,6 +73,7 @@ $publicFiles = @(
     'Public\Export-PowerShellEnvironment.ps1'
     'Public\Import-PowerShellEnvironment.ps1'
     'Public\Invoke-WorkstationBackup.ps1'
+    'Public\New-PowerShellSyncConfig.ps1'
     'Public\Register-WorkstationBackupTask.ps1'
 )
 
@@ -97,5 +98,6 @@ Export-ModuleMember -Function @(
     'Export-PowerShellEnvironment',
     'Import-PowerShellEnvironment',
     'Invoke-WorkstationBackup',
+    'New-PowerShellSyncConfig',
     'Register-WorkstationBackupTask'
 )

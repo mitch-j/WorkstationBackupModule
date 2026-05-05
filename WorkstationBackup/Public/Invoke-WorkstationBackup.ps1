@@ -41,6 +41,15 @@ function Invoke-WorkstationBackup {
         [switch]$WriteInternalModuleManifest
     )
 
+    if ($ConfigPath -and -not $RepoRoot) {
+        if (-not (Test-Path -LiteralPath $ConfigPath)) {
+            throw "Config file not found: $ConfigPath"
+        }
+
+        $config = Read-PowerShellSyncConfig -Path $ConfigPath
+        $RepoRoot = $config.RepoRoot
+    }
+
     $RepoRoot = Get-WorkstationBackupRoot -RepoRoot $RepoRoot -ModuleRoot $PSScriptRoot
     $completedStages = [System.Collections.Generic.List[string]]::new()
 
