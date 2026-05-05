@@ -13,7 +13,8 @@ function Read-PowerShellSyncConfig {
     
     $computerName = if ([string]::IsNullOrWhiteSpace($cfg.ComputerName)) {
         [System.Environment]::MachineName
-    } else {
+    }
+    else {
         $cfg.ComputerName
     }
 
