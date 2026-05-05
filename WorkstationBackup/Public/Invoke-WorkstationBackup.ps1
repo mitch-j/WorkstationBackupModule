@@ -183,7 +183,18 @@ function Invoke-WorkstationBackup {
         return
     }
 
+    $gitRepoDetected = $false
     if (-not $SkipGit) {
+        $gitDotGitPath = Join-Path $RepoRoot '.git'
+        if (Test-Path -LiteralPath $gitDotGitPath) {
+            $gitRepoDetected = $true
+        }
+        else {
+            Write-BackupLog "Skipping Git sync because '$RepoRoot' is not a Git repository." 'WARN'
+        }
+    }
+
+    if (-not $SkipGit -and $gitRepoDetected) {
         if (-not $CommitMessage) {
             $identity = Get-WorkstationIdentity
             $stageText = $completedStages -join ', '
@@ -198,7 +209,7 @@ function Invoke-WorkstationBackup {
     [pscustomobject]@{
         RepoRoot        = $RepoRoot
         CompletedStages = @($completedStages)
-        GitEnabled      = (-not $SkipGit)
+        GitEnabled      = (-not $SkipGit -and $gitRepoDetected)
         CommitMessage   = $CommitMessage
     }
 }

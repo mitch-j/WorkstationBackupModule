@@ -18,6 +18,12 @@ function Invoke-BackupGitSync {
 
     Push-Location -LiteralPath $RepoRoot
     try {
+        & git rev-parse --is-inside-work-tree >$null 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            Write-BackupLog "Backup repository path '$RepoRoot' is not a Git repository. Skipping Git sync." 'WARN'
+            return
+        }
+
         if (-not $SkipPull) {
             if ($PSCmdlet.ShouldProcess($RepoRoot, 'Run git pull --rebase --autostash')) {
                 Write-BackupLog 'Running git pull --rebase --autostash'
