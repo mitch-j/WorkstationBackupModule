@@ -54,11 +54,43 @@ Write-BackupLog 'Initialize-PowerShellWorkstation is still intentionally script-
 Write-BackupLog 'Clone/update and package installation logic should be migrated next.'
 
 if (-not $SkipClone) {
-    Write-BackupLog "TODO: clone or update repo from $RepoUrl into $RepoRoot"
+    if (Test-Path -LiteralPath $RepoRoot) {
+        Write-BackupLog "Repository directory exists at '$RepoRoot'. Pulling latest changes."
+        if ($PSCmdlet.ShouldProcess($RepoRoot, 'Pull latest changes from git repository')) {
+            Push-Location $RepoRoot
+            try {
+                & git pull --rebase
+                if ($LASTEXITCODE -ne 0) {
+                    throw 'Git pull failed.'
+                }
+            }
+            finally {
+                Pop-Location
+            }
+        }
+    }
+    else {
+        Write-BackupLog "Cloning repository from '$RepoUrl' to '$RepoRoot'."
+        if ($PSCmdlet.ShouldProcess($RepoRoot, 'Clone git repository')) {
+            & git clone $RepoUrl $RepoRoot
+            if ($LASTEXITCODE -ne 0) {
+                throw 'Git clone failed.'
+            }
+        }
+    }
 }
 
 if ($InstallPackages) {
-    Write-BackupLog ('TODO: install baseline packages: ' + ($ChocolateyPackages -join ', '))
+    Write-BackupLog ('Installing baseline packages: ' + ($ChocolateyPackages -join ', '))
+    
+    foreach ($package in $ChocolateyPackages) {
+        if ($PSCmdlet.ShouldProcess($package, 'Install Chocolatey package')) {
+            & choco install $package -y
+            if ($LASTEXITCODE -ne 0) {
+                Write-BackupLog -Level 'WARN' -Message "Failed to install package '$package'."
+            }
+        }
+    }
 }
 
 if ($ApplyConfig) {
