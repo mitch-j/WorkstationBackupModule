@@ -123,6 +123,16 @@ function Read-PowerShellSyncConfig {
             })
     }
 
+    if (-not $cfg.PSObject.Properties.Name.Contains('VisualStudioCode')) {
+        $cfg | Add-Member -NotePropertyName VisualStudioCode -NotePropertyValue ([pscustomobject]@{
+                BackupEnabled            = $true
+                UserSettingsSourcePath   = '$env:APPDATA\Code\User'
+                UserSettingsBackupPath   = 'Config\{ComputerName}\VSCode'
+                ExtensionsListBackupPath = 'Config\{ComputerName}\vscode-extensions.txt'
+                RestoreTargetPath        = '$env:APPDATA\Code\User'
+            })
+    }
+
     foreach ($item in @($cfg.Profiles)) {
         if ($null -eq $item) { continue }
         $item.Source = Resolve-TemplateValue -Value $item.Source -ComputerName $computerName
@@ -155,6 +165,11 @@ function Read-PowerShellSyncConfig {
     $cfg.WindowsTerminal.SettingsSourcePath = Resolve-TemplateValue -Value $cfg.WindowsTerminal.SettingsSourcePath -ComputerName $computerName
     $cfg.WindowsTerminal.SettingsBackupPath = Resolve-TemplateValue -Value $cfg.WindowsTerminal.SettingsBackupPath -RelativeRoot $cfg.RepoRoot -ComputerName $computerName
     $cfg.WindowsTerminal.RestoreTargetPath = Resolve-TemplateValue -Value $cfg.WindowsTerminal.RestoreTargetPath -ComputerName $computerName
+
+    $cfg.VisualStudioCode.UserSettingsSourcePath = Resolve-TemplateValue -Value $cfg.VisualStudioCode.UserSettingsSourcePath -ComputerName $computerName
+    $cfg.VisualStudioCode.UserSettingsBackupPath = Resolve-TemplateValue -Value $cfg.VisualStudioCode.UserSettingsBackupPath -RelativeRoot $cfg.RepoRoot -ComputerName $computerName
+    $cfg.VisualStudioCode.ExtensionsListBackupPath = Resolve-TemplateValue -Value $cfg.VisualStudioCode.ExtensionsListBackupPath -RelativeRoot $cfg.RepoRoot -ComputerName $computerName
+    $cfg.VisualStudioCode.RestoreTargetPath = Resolve-TemplateValue -Value $cfg.VisualStudioCode.RestoreTargetPath -ComputerName $computerName
 
     return $cfg
 }

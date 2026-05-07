@@ -38,6 +38,11 @@ function Invoke-ExportPowerShellEnvironment {
     if ($PSCmdlet.ShouldProcess('Windows Terminal settings', 'Backup Windows Terminal settings')) {
         Backup-WindowsTerminal -Config $Config
     }
+
+    if ($PSCmdlet.ShouldProcess('VS Code settings', 'Backup VS Code settings')) {
+        Backup-VSCodeUserSettings -Config $Config
+        Backup-VSCodeExtensionsList -Config $Config
+    }
     
     if ($PSCmdlet.ShouldProcess('PowerShell modules', 'Export PowerShell modules')) {
         Export-PowerShellModule -Config $Config

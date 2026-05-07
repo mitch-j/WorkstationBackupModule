@@ -36,10 +36,12 @@ $privateFiles = @(
     'Private\Backup-SettingsFiles.ps1'
     'Private\Backup-OhMyPoshThemes.ps1'
     'Private\Backup-WindowsTerminal.ps1'
+    'Private\Backup-VSCode.ps1'
     'Private\Restore-PowerShellProfile.ps1'
     'Private\Restore-SettingsFile.ps1'
     'Private\Restore-OhMyPoshThemes.ps1'
     'Private\Restore-WindowsTerminal.ps1'
+    'Private\Restore-VSCode.ps1'
 
     'Private\Get-InstalledGalleryModuleRecords.ps1'
     'Private\Export-PowerShellModules.ps1'
@@ -72,6 +74,8 @@ $publicFiles = @(
     'Public\Export-InternalModuleBackup.ps1'
     'Public\Export-PowerShellEnvironment.ps1'
     'Public\Import-PowerShellEnvironment.ps1'
+    'Public\Backup-VSCode.ps1'
+    'Public\Restore-VSCode.ps1'
     'Public\Invoke-WorkstationBackup.ps1'
     'Public\New-PowerShellSyncConfig.ps1'
     'Public\Register-WorkstationBackupTask.ps1'
@@ -97,6 +101,8 @@ Export-ModuleMember -Function @(
     'Export-InternalModuleBackup',
     'Export-PowerShellEnvironment',
     'Import-PowerShellEnvironment',
+    'Backup-VSCode',
+    'Restore-VSCode',
     'Invoke-WorkstationBackup',
     'New-PowerShellSyncConfig',
     'Register-WorkstationBackupTask'

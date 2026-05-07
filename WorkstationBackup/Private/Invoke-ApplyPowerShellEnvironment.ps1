@@ -50,4 +50,9 @@ function Invoke-ApplyPowerShellEnvironment {
         Restore-WindowsTerminal -Config $Config
     }
 
+    if ($PSCmdlet.ShouldProcess('VS Code settings', 'Restore VS Code settings')) {
+        Restore-VSCodeUserSettings -Config $Config
+        Install-VSCodeExtensionsFromList -Config $Config
+    }
+
 }
