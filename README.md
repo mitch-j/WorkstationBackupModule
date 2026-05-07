@@ -411,7 +411,8 @@ For issues, questions, or feature requests:
 
 - [MIGRATION.md](MIGRATION.md) - Detailed migration information
 - [Tests/](Tests/) - Test suite
-- [WORKFLOW.md](WORKFLOW.md) - New-machine setup and backup workflow
+- [WORKFLOW-BACKUP.md](WORKFLOW-BACKUP.md) - Workstation backup workflow
+- [WORKFLOW-RESTORE.md](WORKFLOW-RESTORE.md) - Workstation restore workflow
 - `Get-Help New-PowerShellSyncConfig` - Built-in help
 - `Get-Help Export-PowerShellEnvironment` - Built-in help
 - `Get-Help Import-PowerShellEnvironment` - Built-in help

@@ -65,8 +65,7 @@ Set-Location 'C:\Backup\Workstation'
 Or, if you are already in the repo root and the wrapper script is accessible:
 
 ```powershell
-.
-\Workstation\Scripts\New-PowerShellSyncConfig.ps1 -RepoRoot 'C:\Backup\Workstation'
+.\Workstation\Scripts\New-PowerShellSyncConfig.ps1 -RepoRoot 'C:\Backup\Workstation'
 ```
 
 This generates `powershell-sync.config.json` in the repository root and resolves paths for backup targets.
