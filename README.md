@@ -4,7 +4,7 @@ A PowerShell module for automating backup and restore of workstation configurati
 
 ## Overview
 
-**WorkstationBackup** provides a comprehensive solution for capturing and restoring your workstation's PowerShell environment, application settings, themes, and PowerShell Gallery modules. This enables reproducible workstation setups across multiple machines and provides version-controlled backups of your development environment.
+**WorkstationBackup** provides a comprehensive solution for capturing and restoring your workstation's PowerShell environment, application settings, themes, and PowerShell modules. This enables reproducible workstation setups across multiple machines and provides version-controlled backups of your development environment.
 
 ### Supported Backup Types
 
@@ -13,6 +13,7 @@ A PowerShell module for automating backup and restore of workstation configurati
 - **Oh My Posh Themes** - PowerShell prompt themes
 - **Windows Terminal Settings** - Terminal configuration and profile metadata
 - **PowerShell Gallery Modules** - Installed modules with version pinning
+- **All Installed Modules** - Complete inventory of all PowerShell modules in PSModulePath
 - **Chocolatey Packages** - Machine-wide package inventory
 - **Internal Modules** - Custom PowerShell modules
 
@@ -25,6 +26,7 @@ A PowerShell module for automating backup and restore of workstation configurati
 - ⚠️ **WhatIf Support** - Preview changes before applying
 - 📝 **Detailed Logging** - Timestamped logs for debugging
 - 🔄 **Version Pinned Modules** - PowerShell Gallery modules pinned to specific versions
+- 📋 **Complete Module Inventory** - Documents all installed PowerShell modules
 - 🚀 **Task Scheduling** - Register automatic backup tasks (Windows)
 
 ## Requirements
@@ -157,12 +159,16 @@ $config = Read-PowerShellSyncConfig -Path ".\powershell-sync.config.json"
 Backup-PowerShellProfiles -Config $config
 ```
 
-### Export PowerShell Gallery Modules
+### Export PowerShell Modules
 
 ```powershell
 $config = Read-PowerShellSyncConfig -Path ".\powershell-sync.config.json"
 Export-PowerShellModules -Config $config
 ```
+
+This creates two manifests:
+- `gallery-modules.json` - PowerShell Gallery modules that can be reinstalled
+- `all-modules.json` - Complete inventory of all installed modules for documentation
 
 ### Full Environment Export with Git Sync
 

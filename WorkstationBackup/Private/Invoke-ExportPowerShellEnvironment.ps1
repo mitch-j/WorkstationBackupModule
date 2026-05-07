@@ -45,7 +45,7 @@ function Invoke-ExportPowerShellEnvironment {
     }
     
     if ($PSCmdlet.ShouldProcess('PowerShell modules', 'Export PowerShell modules')) {
-        Export-PowerShellModule -Config $Config
+        Export-PowerShellModules -Config $Config
     }
     
     if ($PSCmdlet.ShouldProcess('Machine state', 'Export machine state')) {

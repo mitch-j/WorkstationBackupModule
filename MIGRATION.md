@@ -22,7 +22,7 @@ Successfully migrated core functionality from legacy `Sync-PowerShellEnvironment
 2. **Backup-SettingsFiles.ps1** - Backs up application settings files
 3. **Backup-OhMyPoshThemes.ps1** - Backs up Oh My Posh theme files
 4. **Backup-WindowsTerminal.ps1** - Backs up Windows Terminal settings and generates summary
-5. **Export-PowerShellModules.ps1** - Exports installed PowerShell Gallery modules to JSON manifest
+5. **Export-PowerShellModules.ps1** - Exports installed PowerShell Gallery modules and all modules to JSON manifests
 
 ### Restore Functions
 
