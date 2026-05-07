@@ -26,10 +26,10 @@ function Export-PowerShellModules {
     $allModules = Get-Module -ListAvailable | Select-Object Name, Version, ModuleBase, Path | Sort-Object Name, Version
     $allModulesManifest = foreach ($module in $allModules) {
         [pscustomobject]@{
-            Name      = $module.Name
-            Version   = $module.Version.ToString()
+            Name       = $module.Name
+            Version    = $module.Version.ToString()
             ModuleBase = $module.ModuleBase
-            Path      = $module.Path
+            Path       = $module.Path
         }
     }
 

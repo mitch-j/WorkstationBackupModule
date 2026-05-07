@@ -167,6 +167,7 @@ Export-PowerShellModules -Config $config
 ```
 
 This creates two manifests:
+
 - `gallery-modules.json` - PowerShell Gallery modules that can be reinstalled
 - `all-modules.json` - Complete inventory of all installed modules for documentation
 
